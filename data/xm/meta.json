@@ -1,0 +1,18 @@
+{
+ "metrics": {
+  "gene": {
+   "metric": "Gene",
+   "entity": "Recurso"
+  },
+  "fuel_mbtu": {
+   "metric": "ConsCombustibleMBTU",
+   "entity": "RecursoComb"
+  },
+  "demand": {
+   "metric": "DemaCome",
+   "entity": "Sistema"
+  }
+ },
+ "last_thermal_date": null,
+ "updated_utc": "2026-07-20T05:26Z"
+}

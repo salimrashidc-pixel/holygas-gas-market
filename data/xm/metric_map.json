@@ -1,0 +1,14 @@
+{
+ "gene": {
+  "metric": "Gene",
+  "entity": "Recurso"
+ },
+ "fuel_mbtu": {
+  "metric": "ConsCombustibleMBTU",
+  "entity": "RecursoComb"
+ },
+ "demand": {
+  "metric": "DemaCome",
+  "entity": "Sistema"
+ }
+}

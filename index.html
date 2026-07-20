@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>HOLYGAS · Gas Market Terminal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#1E3A7B; --blue:#294A9A; --blue-soft:#6E86C7; --magenta:#A3599F;
+  --ink:#17233F; --mut:#5D6B8A; --field:#F3F5FA; --card:#FFFFFF;
+  --line:#E1E6F0; --ok:#1F8A5B; --warn:#C77D1F; --bad:#B3433B;
+  --r:12px; --sh:0 1px 3px rgba(23,35,63,.08),0 4px 14px rgba(23,35,63,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font:15px/1.45 "Inter","Segoe UI",system-ui,sans-serif;background:var(--field);color:var(--ink)}
+.num{font-variant-numeric:tabular-nums}
+header{background:linear-gradient(100deg,var(--navy) 55%,#3D2B66 100%);color:#fff;padding:14px 18px 12px}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand h1{font-family:"Archivo","Inter",sans-serif;font-weight:800;font-size:19px;letter-spacing:.06em}
+.brand h1 b{color:#F0A7EA;font-weight:800}
+.brand .sub{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+.brand .date{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px;opacity:.85}
+/* Signature: Balance Bar */
+#balbar{margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
+  border-radius:10px;padding:10px 12px}
+#balbar .row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;flex-wrap:wrap;gap:4px}
+#balbar .row b{font-weight:600}
+#balbar .track{position:relative;height:14px;border-radius:7px;background:rgba(255,255,255,.12);overflow:hidden}
+#balbar .sup{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#4C6DC4,#7FA0EE);border-radius:7px}
+#balbar .dem{position:absolute;top:0;bottom:0;width:3px;background:var(--magenta);box-shadow:0 0 0 2px rgba(163,89,159,.35)}
+#balbar .delta{font-family:"IBM Plex Mono",monospace}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;background:var(--card);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--mut);
+  padding:7px 13px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+nav button:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
+main{max-width:1180px;margin:0 auto;padding:14px}
+.tab{display:none}.tab.on{display:block}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;margin-bottom:12px}
+.kpi .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.kpi .val{font-size:26px;font-weight:800;margin-top:2px}
+.kpi .un{font-size:12px;color:var(--mut);font-weight:600;margin-left:4px}
+.kpi .ctx{font-size:12px;color:var(--mut);margin-top:2px}
+h2{font-family:"Archivo","Inter",sans-serif;font-size:15px;font-weight:800;letter-spacing:.02em;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h2 .chip{font-size:10px;letter-spacing:.08em;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
+.chip.ok{background:#E3F3EB;color:var(--ok)} .chip.warn{background:#FBF0DE;color:var(--warn)}
+.chip.bad{background:#F8E6E4;color:var(--bad)} .chip.info{background:#E8EDF9;color:var(--blue)}
+.cwrap{position:relative;height:300px}
+@media(max-width:640px){.cwrap{height:230px}.kpi .val{font-size:22px}}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);
+  text-align:left;padding:6px 8px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--line)}
+td.r,th.r{text-align:right}
+tr:hover td{background:#F7F9FD}
+.pos{color:var(--ok);font-weight:600}.neg{color:var(--bad);font-weight:600}
+select,input[type=search],input[type=date]{padding:8px 10px;border:1px solid var(--line);border-radius:8px;
+  font:inherit;background:#fff;color:var(--ink);max-width:100%}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.note{font-size:12px;color:var(--mut)}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;background:#EDF1FA;color:var(--blue);font-weight:600;margin:1px 2px}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:12px}
+.scrolly{overflow-x:auto}
+.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--mut)}
+.empty b{color:var(--ink)}
+footer{max-width:1180px;margin:0 auto;padding:6px 16px 26px;font-size:11px;color:var(--mut)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>HOLY<b>GAS</b></h1>
+    <span class="sub">Gas Market Terminal · Colombia</span>
+    <span class="date num" id="today"></span>
+  </div>
+  <div id="balbar" aria-label="Supply vs thermal demand balance">
+    <div class="row">
+      <span><b style="color:#9FB6EE">Supply</b> (Gestor, latest) <span class="num" id="bbSup">—</span></span>
+      <span><b style="color:#F0A7EA">Thermal gas burn</b> (XM) <span class="num" id="bbDem">—</span></span>
+      <span class="delta num" id="bbDelta"></span>
+    </div>
+    <div class="track"><div class="sup" id="bbSupBar" style="width:0%"></div><div class="dem" id="bbDemMark" style="left:0%"></div></div>
+  </div>
+</header>
+
+<nav id="tabs" role="tablist">
+  <button data-t="balance" class="on">Balance</button>
+  <button data-t="fields">Supply · Fields</button>
+  <button data-t="transp">Supply · Transporters</button>
+  <button data-t="tgi">TGI Nominations</button>
+  <button data-t="thermal">Thermal &amp; Power</button>
+  <button data-t="status">Status</button>
+</nav>
+
+<main>
+<!-- ============ BALANCE ============ -->
+<section class="tab on" id="tab-balance">
+  <div class="grid" id="kpis"></div>
+  <div class="card">
+    <h2>National supply by process — last 60 days <span class="chip info" id="supChip"></span></h2>
+    <div class="cwrap"><canvas id="chSupply"></canvas></div>
+    <p class="note">Fact: Gestor bi-gas daily energy per field, MBTU/day. Declared PP (DPNG) overlaid as monthly reference. Processes may partially overlap — validate category definitions with the Gestor before summing across all five.</p>
+  </div>
+  <div class="card">
+    <h2>Top fields — latest day vs declared potential</h2>
+    <div class="scrolly"><table id="tblTop"><thead><tr>
+      <th>Field</th><th>Region</th><th class="r">Latest MBTUD</th><th class="r">7-d avg</th>
+      <th class="r">PP declared</th><th class="r">Real / PP</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<!-- ============ FIELDS ============ -->
+<section class="tab" id="tab-fields">
+  <div class="card">
+    <div class="controls">
+      <input type="search" id="fSearch" placeholder="Search field…" list="fList"><datalist id="fList"></datalist>
+      <select id="fSel"></select>
+      <span class="note" id="fInfo"></span>
+    </div>
+    <h2 id="fTitle">Field detail</h2>
+    <div class="cwrap"><canvas id="chField"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Monthly history since Mar-2022 (avg MBTUD)</h2>
+    <div class="cwrap"><canvas id="chFieldM"></canvas></div>
+  </div>
+</section>
+
+<!-- ============ TRANSPORTERS ============ -->
+<section class="tab" id="tab-transp">
+  <div class="card" id="transpCard">
+    <h2>Transporter injections <span class="chip warn" id="trChip">upload mode</span></h2>
+    <div id="trBody"></div>
+  </div>
+  <div class="card">
+    <h2>How to feed this tab (30 seconds, from your phone)</h2>
+    <p class="note">1) Export the daily file from the portal (TGI CGA · Promigas BEO · Promioriente BEO). 2) In GitHub → this repo → <b>inbox/</b> → “Add file · Upload”. 3) The pipeline sniffs the layout, parses it and refreshes here in ~2 min. Automated scraping of these portals is attempted on every run; the Status tab shows each probe’s result so we can graduate a source from manual to automatic once its endpoint is confirmed.</p>
+  </div>
+</section>
+
+<!-- ============ TGI ============ -->
+<section class="tab" id="tab-tgi">
+  <div class="card">
+    <div class="controls">
+      <select id="tgiDay"></select>
+      <select id="tgiView">
+        <option value="points">Program by exit point</option>
+        <option value="routes">Route nominations</option>
+        <option value="detail">Client detail (Nom vs Confirmed)</option>
+      </select>
+      <input type="search" id="tgiFilter" placeholder="Filter…">
+    </div>
+    <h2 id="tgiTitle">TGI · Program by exit point</h2>
+    <div class="cwrap" id="tgiChartWrap"><canvas id="chTgi"></canvas></div>
+    <div class="scrolly"><table id="tblTgi"><thead></thead><tbody></tbody></table></div>
+    <p class="note" id="tgiNote"></p>
+  </div>
+</section>
+
+<!-- ============ THERMAL ============ -->
+<section class="tab" id="tab-thermal">
+  <div class="grid" id="thKpis"></div>
+  <div class="card">
+    <h2>SIN demand vs thermal gas burn <span class="chip" id="thChip"></span></h2>
+    <div class="cwrap"><canvas id="chTh"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Gas plants — last available day</h2>
+    <div class="scrolly"><table id="tblTh"><thead><tr>
+      <th>Plant</th><th class="r">GWh</th><th class="r">MBTU</th>
+      <th class="r">Implied HR (MBTU/MWh)</th><th class="r">HR 30-d median</th></tr></thead><tbody></tbody></table></div>
+  </div>
+  <div class="card">
+    <h2>XM weekly outlook — maintenance &amp; gas sector</h2>
+    <div id="maintBody" class="note"></div>
+  </div>
+</section>
+
+<!-- ============ STATUS ============ -->
+<section class="tab" id="tab-status">
+  <div class="card">
+    <h2>Source freshness</h2>
+    <div class="scrolly"><table id="tblStatus"><thead><tr>
+      <th>Source</th><th>Cadence</th><th>Last data</th><th>State</th></tr></thead><tbody></tbody></table></div>
+  </div>
+  <div class="card">
+    <h2>Last collector log</h2>
+    <div id="collLog" class="mono note"></div>
+  </div>
+</section>
+</main>
+
+<footer>HOLYGAS S.A.S. E.S.P. — internal market intelligence. Sources: Gestor del Mercado (BEC), MinEnergía DPNG, TGI CGA, Promigas/Promioriente BEO, XM. Figures in native units per source; conversions per settings.json.</footer>
+
+<script>
+"use strict";
+const $=(q,el=document)=>el.querySelector(q), $$=(q,el=document)=>[...el.querySelectorAll(q)];
+const fmt=(v,d=0)=>v==null||isNaN(v)?"—":Number(v).toLocaleString("en-US",{maximumFractionDigits:d,minimumFractionDigits:d});
+const BLUE="#294A9A",BLUES=["#294A9A","#4C6DC4","#7FA0EE","#A9BEF2","#1E3A7B"],MAG="#A3599F";
+Chart.defaults.font.family="'Inter',sans-serif";Chart.defaults.color="#5D6B8A";
+$("#today").textContent=new Date().toISOString().slice(0,10);
+
+const D={}; // datasets
+const files={gd:"data/gestor_daily.json",gm:"data/gestor_monthly.json",gme:"data/gestor_meta.json",
+  dp:"data/dpng.json",fm:"data/field_map.json",tg:"data/tgi_nominations.json",
+  tr:"data/transporters.json",st:"data/settings.json",
+  xt:"data/xm/thermal_daily.json",xs:"data/xm/system_daily.json",
+  xh:"data/xm/heat_rates.json",xm:"data/xm/maintenance.json",xmeta:"data/xm/meta.json"};
+
+async function loadAll(){
+  await Promise.all(Object.entries(files).map(async([k,p])=>{
+    try{const r=await fetch(p+"?v="+Date.now());D[k]=r.ok?await r.json():null}
+    catch(e){D[k]=null}
+  }));
+  build();
+}
+
+/* ---------- helpers over gestor rows ---------- */
+function gestorByDay(){ // date -> {total, byProc:{}, byField:{}}
+  const out={};
+  (D.gd?.rows||[]).forEach(([d,t,p,c,v])=>{
+    const o=out[d]??={total:0,nat:0,byProc:{},byField:{}};
+    o.total+=v; if(t==="NACIONAL")o.nat+=v;
+    o.byProc[p]=(o.byProc[p]||0)+v; o.byField[c]=(o.byField[c]||0)+v;
+  });
+  return out;
+}
+function declaredPP(month){ // national PP MBTUD for YYYY-MM
+  let s=0; const f=D.dp?.fields||{};
+  for(const k in f){const m=f[k].monthly?.[month]; if(m) s+=m.pp||0;}
+  return s||null;
+}
+
+/* ---------- Balance tab ---------- */
+let charts={};
+function mkChart(id,cfg){charts[id]?.destroy();charts[id]=new Chart($(id),cfg);}
+function buildBalance(){
+  const byDay=gestorByDay(), days=Object.keys(byDay).sort();
+  const last=days.at(-1), lastO=byDay[last]||{total:0,byProc:{}};
+  const supG=lastO.total/1000, natG=(lastO.nat||0)/1000;
+  const ppM=declaredPP(last?.slice(0,7)); const ppG=ppM?ppM/1000:null;
+
+  // XM burn latest
+  const xs=D.xs||{}; const xdays=Object.keys(xs).sort(); const xl=xdays.at(-1);
+  const burn=xl?xs[xl]?.gas_burn_mbtud:null, demGWh=xl?xs[xl]?.demand_gwh:null;
+
+  // Balance bar
+  $("#bbSup").textContent=fmt(supG)+" GBTUD ("+(last||"—")+")";
+  $("#bbDem").textContent=burn?fmt(burn/1000)+" GBTUD ("+xl+")":"pending XM sync";
+  const cap=Math.max(supG,burn?burn/1000:0,ppG||0)*1.1||1;
+  $("#bbSupBar").style.width=(supG/cap*100)+"%";
+  if(burn){$("#bbDemMark").style.left=(burn/1000/cap*100)+"%";
+    $("#bbDelta").textContent="Δ "+fmt(supG-burn/1000)+" GBTUD headroom";}
+  else{$("#bbDemMark").style.display="none";$("#bbDelta").textContent="";}
+
+  // KPIs
+  const kp=[["Total supply (latest)",fmt(supG,0),"GBTUD",last],
+    ["National vs declared PP",ppG?fmt(natG/ppG*100,1)+"%":"—",fmt(natG)+" / "+(ppG?fmt(ppG):"—")+" GBTUD","DPNG Res. 01205 · national only"],
+    ["Thermal gas burn",burn?fmt(burn/1000,0):"—","GBTUD",xl||"pending XM"],
+    ["SIN demand",demGWh?fmt(demGWh,0):"—","GWh-day",xl||"pending XM"],
+    ["Thermal outlook wk-30",(D.xm?.thermal_outlook?.week30_avg_thermal_gwh_day||[]).join("–")||"—","GWh-day","XM CP deck"]];
+  $("#kpis").innerHTML=kp.map(([l,v,u,c])=>`<div class="card kpi"><div class="lbl">${l}</div><div class="val num">${v}<span class="un">${u}</span></div><div class="ctx">${c??""}</div></div>`).join("");
+  $("#supChip").textContent="last data "+(last||"—");
+
+  // Stacked supply by process, 60d + declared line
+  const w=days.slice(-60);
+  const procs=[...new Set(w.flatMap(d=>Object.keys(byDay[d].byProc)))];
+  const ds=procs.map((p,i)=>({label:p,data:w.map(d=>(byDay[d].byProc[p]||0)/1000),
+    backgroundColor:BLUES[i%BLUES.length],stack:"s",borderWidth:0}));
+  ds.push({label:"Declared PP",type:"line",data:w.map(d=>{const m=declaredPP(d.slice(0,7));return m?m/1000:null}),
+    borderColor:MAG,borderDash:[6,4],pointRadius:0,borderWidth:2,yAxisID:"y"});
+  mkChart("#chSupply",{type:"bar",data:{labels:w.map(d=>d.slice(5)),datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+      scales:{x:{stacked:true,ticks:{maxTicksLimit:10}},y:{stacked:true,title:{display:true,text:"GBTUD"}}},
+      plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:11}}}}}});
+
+  // Top fields table
+  const prev7=days.slice(-8,-1);
+  const rows=Object.entries(lastO.byField).sort((a,b)=>b[1]-a[1]).slice(0,15).map(([f,v])=>{
+    const avg=prev7.length?prev7.reduce((s,d)=>s+(byDay[d].byField[f]||0),0)/prev7.length:null;
+    const pp=D.dp?.fields?.[f]?.monthly?.[last.slice(0,7)]?.pp??D.dp?.fields?.[f]?.annual_pp?.[last.slice(0,4)];
+    const util=pp?v/pp*100:null; const reg=D.fm?.[f]?.region||"";
+    return `<tr><td>${f}</td><td>${reg}</td><td class="r num">${fmt(v)}</td><td class="r num">${fmt(avg)}</td>
+      <td class="r num">${fmt(pp)}</td><td class="r num ${util>100?'pos':util<70?'neg':''}">${util?fmt(util,0)+"%":"—"}</td></tr>`;
+  }).join("");
+  $("#tblTop tbody").innerHTML=rows;
+}
+
+/* ---------- Fields tab ---------- */
+function buildFields(){
+  const fields=[...new Set((D.gd?.rows||[]).map(r=>r[3]))].sort();
+  $("#fSel").innerHTML=fields.map(f=>`<option>${f}</option>`).join("");
+  $("#fList").innerHTML=fields.map(f=>`<option value="${f}">`).join("");
+  const draw=f=>{
+    $("#fTitle").textContent=f;
+    const meta=D.fm?.[f];
+    $("#fInfo").innerHTML=meta?`<span class="tag">${meta.region||"?"}</span> ${meta.producers.map(p=>`<span class="tag">${p}</span>`).join("")}`:"";
+    const rows=(D.gd?.rows||[]).filter(r=>r[3]===f);
+    const byDay={};rows.forEach(([d,,p,,v])=>{byDay[d]=(byDay[d]||0)+v});
+    const days=Object.keys(byDay).sort();
+    const pp=days.map(d=>D.dp?.fields?.[f]?.monthly?.[d.slice(0,7)]?.pp??null);
+    mkChart("#chField",{type:"line",data:{labels:days.map(d=>d.slice(5)),datasets:[
+      {label:"Real MBTUD",data:days.map(d=>byDay[d]),borderColor:BLUE,backgroundColor:"rgba(41,74,154,.12)",fill:true,pointRadius:0,borderWidth:2},
+      {label:"Declared PP",data:pp,borderColor:MAG,borderDash:[6,4],pointRadius:0,borderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{maxTicksLimit:10}},y:{title:{display:true,text:"MBTUD"}}},
+        plugins:{legend:{position:"bottom"}},interaction:{mode:"index",intersect:false}}});
+    const mo=D.gm?.fields?.[f]||{};const ms=Object.keys(mo).sort();
+    mkChart("#chFieldM",{type:"bar",data:{labels:ms,datasets:[{label:"Avg MBTUD",data:ms.map(m=>mo[m]),backgroundColor:BLUES[1],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{maxTicksLimit:12}},y:{title:{display:true,text:"MBTUD"}}},plugins:{legend:{display:false}}}});
+  };
+  $("#fSel").onchange=e=>draw(e.target.value);
+  $("#fSearch").oninput=e=>{if(fields.includes(e.target.value)){$("#fSel").value=e.target.value;draw(e.target.value);}};
+  const def=fields.includes("CUSIANA")?"CUSIANA":fields[0]; if(def){$("#fSel").value=def;draw(def);}
+}
+
+/* ---------- Transporters tab ---------- */
+function buildTransp(){
+  const s=D.tr?.sources||{};
+  const names=Object.keys(s);
+  if(!names.length){
+    $("#trBody").innerHTML=`<div class="empty"><b>No automated transporter data yet.</b><br>
+      The collector probes TGI CGA, Promigas and Promioriente on every run — see Status tab for each probe result.<br>
+      Meanwhile: drop the daily export in <b>inbox/</b> and it appears here.</div>`;
+    return;
+  }
+  $("#trChip").textContent="auto";$("#trChip").className="chip ok";
+  let html="";
+  names.forEach(n=>{
+    const days=Object.keys(s[n]).sort();const last=days.at(-1);const pts=s[n][last];
+    const tot=Object.values(pts).reduce((a,b)=>a+b,0);
+    html+=`<h2 style="margin-top:10px">${n} <span class="chip info">${last}</span> <span class="note num">total ${fmt(tot)} (native units)</span></h2>
+    <div class="scrolly"><table><thead><tr><th>Injection point</th><th class="r">Value</th></tr></thead><tbody>`+
+    Object.entries(pts).sort((a,b)=>b[1]-a[1]).map(([p,v])=>`<tr><td>${p}</td><td class="r num">${fmt(v,1)}</td></tr>`).join("")+
+    `</tbody></table></div>`;
+  });
+  $("#trBody").innerHTML=html;
+}
+
+/* ---------- TGI tab ---------- */
+function buildTgi(){
+  const t=D.tg||{};const pbp=t.program_by_point||{},routes=t.routes||{},detail=t.detail||{};
+  const daysP=Object.keys(pbp).sort(),daysR=Object.keys(routes).sort();
+  const daysD=[...new Set(Object.keys(detail).map(k=>k.split("|")[0]))].sort();
+  const allDays=[...new Set([...daysP,...daysR,...daysD])].sort().reverse();
+  $("#tgiDay").innerHTML=allDays.map(d=>`<option>${d}</option>`).join("")||"<option>—</option>";
+  const render=()=>{
+    const day=$("#tgiDay").value,view=$("#tgiView").value,q=$("#tgiFilter").value.toLowerCase();
+    const T=$("#tblTgi");let title,note="";
+    if(view==="points"){
+      title="TGI · Program by exit point";
+      const pts=pbp[day]||pbp[daysP.at(-1)]||{};
+      const ent=Object.entries(pts).filter(([k])=>k.toLowerCase().includes(q)).sort((a,b)=>b[1].total-a[1].total);
+      T.tHead.innerHTML="<tr><th>Exit point</th><th class='r'>Daily total</th><th class='r'>Peak h</th></tr>";
+      T.tBodies[0].innerHTML=ent.slice(0,80).map(([p,v])=>{
+        const pk=v.hours.indexOf(Math.max(...v.hours));
+        return `<tr><td>${p}</td><td class="r num">${fmt(v.total)}</td><td class="r num">${String(pk).padStart(2,"0")}:00</td></tr>`}).join("");
+      const top=ent.slice(0,8);
+      $("#tgiChartWrap").style.display="";
+      mkChart("#chTgi",{type:"line",data:{labels:[...Array(24).keys()].map(h=>h+":00"),
+        datasets:top.map(([p,v],i)=>({label:p,data:v.hours,borderColor:BLUES[i%5],borderWidth:2,pointRadius:0}))},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10}}}},
+          scales:{y:{title:{display:true,text:"per hour (native)"}}}}});
+      note=`Fact: hourly transport program per exit point (CGA report). Units are the report's native units — confirm KPC vs MBTU in Settings.`;
+    }else if(view==="routes"){
+      title="TGI · Route nominations";
+      const rs=(routes[day]||routes[daysR.at(-1)]||[]).filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+      T.tHead.innerHTML="<tr><th>Contract</th><th>Remitente</th><th>Entry → Exit</th><th>Sector</th><th class='r'>MBTU</th><th class='r'>KPC</th><th>Desv.</th></tr>";
+      T.tBodies[0].innerHTML=rs.slice(0,200).map(r=>`<tr><td class="mono">${r.contract}</td><td>${r.remitente}</td>
+        <td>${r.entry} → ${r.exit}</td><td>${r.sector}</td><td class="r num">${fmt(r.mbtu)}</td>
+        <td class="r num">${fmt(r.kpc)}</td><td>${r.desvio}</td></tr>`).join("");
+      $("#tgiChartWrap").style.display="none";
+      note=`${rs.length} nomination records on ${day}. Filter by remitente, point or sector.`;
+    }else{
+      title="TGI · Client detail — Nomination vs Confirmed";
+      const keys=Object.keys(detail).filter(k=>k.startsWith(day)&&k.toLowerCase().includes(q));
+      T.tHead.innerHTML="<tr><th>Remitente</th><th>Point</th><th>Segment</th><th class='r'>Nominated</th><th class='r'>Confirmed</th><th class='r'>Δ</th></tr>";
+      T.tBodies[0].innerHTML=keys.slice(0,200).map(k=>{
+        const [,rem,pnt,seg]=k.split("|");const v=detail[k];
+        const n=v.nomination?.total||0,c=v.confirmed?.total||0,d=c-n;
+        return `<tr><td>${rem}</td><td>${pnt}</td><td>${seg}</td><td class="r num">${fmt(n)}</td>
+          <td class="r num">${fmt(c)}</td><td class="r num ${d<0?'neg':d>0?'pos':''}">${fmt(d)}</td></tr>`}).join("");
+      $("#tgiChartWrap").style.display="none";
+      note=`Δ = confirmed − nominated per client/point (cut-flag view).`;
+    }
+    $("#tgiTitle").textContent=title;$("#tgiNote").textContent=note;
+  };
+  ["tgiDay","tgiView","tgiFilter"].forEach(id=>$("#"+id).addEventListener("input",render));
+  if(allDays.length)render();
+}
+
+/* ---------- Thermal tab ---------- */
+function buildThermal(){
+  const xt=D.xt||{},xs=D.xs||{};
+  const days=Object.keys(xt).sort(),xl=days.at(-1);
+  const pending=!days.length;
+  $("#thChip").textContent=pending?"pending first XM sync":"last "+xl;
+  $("#thChip").className="chip "+(pending?"warn":"ok");
+  const burn=xl?Object.values(xt[xl]).reduce((s,p)=>s+p.mbtu,0):null;
+  const kp=[["Gas burn (latest)",burn?fmt(burn/1000,0):"—","GBTUD",xl||"run Actions once"],
+    ["Plants reporting",xl?Object.keys(xt[xl]).length:"—","",""],
+    ["Reservoir (XM outlook)",(D.xm?.thermal_outlook?.reservoir_pct_range||[]).join("–")||"—","%","wk 29-30 deck"],
+    ["Maint. unavailability",fmt(D.xm?.thermal_outlook?.maintenance_unavailability_mw_max),"MW max","wk 29-30 deck"]];
+  $("#thKpis").innerHTML=kp.map(([l,v,u,c])=>`<div class="card kpi"><div class="lbl">${l}</div><div class="val num">${v}<span class="un">${u}</span></div><div class="ctx">${c}</div></div>`).join("");
+
+  if(!pending){
+    const w=days.slice(-60);
+    mkChart("#chTh",{data:{labels:w.map(d=>d.slice(5)),datasets:[
+      {type:"bar",label:"Gas burn (GBTUD)",data:w.map(d=>Object.values(xt[d]).reduce((s,p)=>s+p.mbtu,0)/1000),
+        backgroundColor:"rgba(163,89,159,.55)",yAxisID:"y"},
+      {type:"line",label:"SIN demand (GWh-day)",data:w.map(d=>xs[d]?.demand_gwh??null),
+        borderColor:BLUE,borderWidth:2,pointRadius:0,yAxisID:"y1"}]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+        plugins:{legend:{position:"bottom"}},
+        scales:{y:{title:{display:true,text:"GBTUD"}},y1:{position:"right",grid:{drawOnChartArea:false},title:{display:true,text:"GWh-day"}}}}});
+    const hr=D.xh?.plants||{};
+    $("#tblTh tbody").innerHTML=Object.entries(xt[xl]).sort((a,b)=>b[1].mbtu-a[1].mbtu).map(([p,v])=>
+      `<tr><td>${p}</td><td class="r num">${fmt(v.gwh,2)}</td><td class="r num">${fmt(v.mbtu)}</td>
+       <td class="r num">${fmt(v.hr,2)}</td><td class="r num">${fmt(hr[p],2)}</td></tr>`).join("");
+  }else{
+    $("#tblTh tbody").innerHTML=`<tr><td colspan="5"><div class="empty"><b>Run the “Update market data” Action once</b> (or wait for the next cron) to populate generation, fuel burn and derived heat rates from API XM. Then run “Backfill XM history” for data since 2020.</div></td></tr>`;
+  }
+  const m=D.xm;
+  $("#maintBody").innerHTML=m?`<p><b>${m.source}</b></p>
+    <p style="margin-top:6px">Gas sector (${m.gas_sector.week}): ${m.gas_sector.note}.</p>
+    <p style="margin-top:6px">Thermal outlook wk-30: <span class="num">${m.thermal_outlook.week30_avg_thermal_gwh_day.join("–")} GWh-day</span> ·
+    renewables share <span class="num">${m.thermal_outlook.renewables_share_pct}%</span> ·
+    reservoir <span class="num">${m.thermal_outlook.reservoir_pct_range.join("–")}%</span>.</p>
+    <p class="note" style="margin-top:6px">Weekly deck PDF: drop the new one in inbox/ — it is archived automatically; summary fields updated on parse (v2: automated extraction).</p>`
+    :"No maintenance deck loaded yet.";
+}
+
+/* ---------- Status tab ---------- */
+function buildStatus(){
+  const today=new Date(),ageDays=d=>d?Math.round((today-new Date(d))/864e5):null;
+  const rows=[
+    ["Gestor bi-gas (supply per field)","Daily, ~1 wk lag",D.gme?.last_date,7],
+    ["DPNG declared potential","Monthly / on novelty","2026-07-07 (Res. 01205)",45],
+    ["TGI CGA nominations","Daily (manual/auto)",Object.keys(D.tg?.program_by_point||{}).sort().at(-1),3],
+    ["Promigas / Promioriente","Daily D+1",Object.keys(D.tr?.sources?.PROMIGAS||{}).sort().at(-1),2],
+    ["XM thermal & demand","Daily (API)",Object.keys(D.xt||{}).sort().at(-1),2],
+    ["XM weekly CP deck","Weekly",D.xm?.updated_utc?.slice(0,10),9]];
+  $("#tblStatus tbody").innerHTML=rows.map(([s,c,d,tol])=>{
+    const a=ageDays(d);
+    const st=d==null?["bad","missing"]:a<=tol?["ok","fresh"]:a<=tol*2?["warn",a+"d old"]:["bad",a+"d old"];
+    return `<tr><td>${s}</td><td>${c}</td><td class="num">${d||"—"}</td><td><span class="chip ${st[0]}">${st[1]}</span></td></tr>`}).join("");
+  $("#collLog").innerHTML=(D.tr?.meta?.log||["No collector run yet — logs appear after the first GitHub Action."]).map(l=>"• "+l).join("<br>")+
+    "<br><br>updated: "+(D.tr?.meta?.updated_utc||"—")+" · XM meta: "+(D.xmeta?.updated_utc||"—");
+}
+
+function build(){buildBalance();buildFields();buildTransp();buildTgi();buildThermal();buildStatus();}
+
+/* tabs */
+$("#tabs").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  $$("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  $$(".tab").forEach(t=>t.classList.toggle("on",t.id==="tab-"+b.dataset.t));
+});
+loadAll();
+</script>
+</body>
+</html>

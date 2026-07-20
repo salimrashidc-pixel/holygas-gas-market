@@ -1,0 +1,9 @@
+{
+ "pc_factor_default_btu_pc": 1050,
+ "note": "KPC×PC(BTU/PC)/1000 = MBTU. Per-point overrides below; DPNG per-field PC in dpng.json",
+ "pc_overrides": {},
+ "display": {
+  "unit_default": "native",
+  "home_days": 60
+ }
+}

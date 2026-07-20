@@ -1,0 +1,20 @@
+{
+ "source": "XM Análisis energético de corto plazo — Semanas 29-30/2026 (13–26 Jul)",
+ "gas_sector": {
+  "week": "2026-07-20/2026-07-26",
+  "note": "Sin mantenimientos en red de transporte y producción de gas con impacto en térmicas a gas del SIN"
+ },
+ "thermal_outlook": {
+  "week30_avg_thermal_gwh_day": [
+   61,
+   62
+  ],
+  "reservoir_pct_range": [
+   79.3,
+   81.5
+  ],
+  "renewables_share_pct": 9.1,
+  "maintenance_unavailability_mw_max": 2000
+ },
+ "updated_utc": "2026-07-18T17:59Z"
+}

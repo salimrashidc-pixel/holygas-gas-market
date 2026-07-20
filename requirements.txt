@@ -1,0 +1,6 @@
+pandas
+openpyxl
+requests
+lxml
+pydataxm
+pdfplumber

@@ -1,0 +1,20 @@
+name: Vendorize chart library (run once)
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  vendorize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Chart.js into the repo
+        run: |
+          mkdir -p vendor
+          curl -fsSL https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js -o vendor/chart.umd.min.js
+          echo "" > .nojekyll
+          git config user.name "holygas-bot"
+          git config user.email "bot@holygas.co"
+          git add -A
+          git diff --cached --quiet || git commit -m "vendor: self-host chart library"
+          git push

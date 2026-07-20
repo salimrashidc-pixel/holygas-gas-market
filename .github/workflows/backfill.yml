@@ -1,0 +1,23 @@
+name: Backfill XM history (run once)
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q pandas pydataxm requests
+      - name: Backfill XM from 2020-01-01
+        run: python scripts/collect_xm.py --backfill
+      - name: Commit
+        run: |
+          git config user.name "holygas-bot"
+          git config user.email "bot@holygas.co"
+          git add -A data
+          git diff --cached --quiet || git commit -m "data: XM backfill from 2020"
+          git push

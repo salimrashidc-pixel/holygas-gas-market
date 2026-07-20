@@ -1,0 +1,39 @@
+name: Update market data
+on:
+  schedule:
+    - cron: "0 9 * * *"
+    - cron: "30 16 * * *"
+    - cron: "30 19 * * *"
+    - cron: "30 23 * * *"
+  push:
+    paths: ["inbox/**"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q pandas openpyxl requests lxml pydataxm pdfplumber
+      - name: Route inbox uploads
+        run: python scripts/process_uploads.py
+      - name: Probe transporter portals
+        run: python scripts/collect_transporters.py || true
+      - name: Sync XM (incremental)
+        run: python scripts/collect_xm.py || true
+      - name: Commit refreshed data
+        run: |
+          git config user.name "holygas-bot"
+          git config user.email "bot@holygas.co"
+          git add -A data inbox
+          git diff --cached --quiet || git commit -m "data: auto-refresh $(date -u +%F_%H%M)"
+          git push

@@ -1,0 +1,28 @@
+name: Repair folder structure (run once)
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move loose files into their folders
+        run: |
+          mkdir -p scripts data/xm inbox/processed
+          for f in parse_gestor.py parse_dpng.py parse_tgi.py collect_xm.py collect_transporters.py process_uploads.py; do
+            [ -f "$f" ] && git mv -f "$f" scripts/ || true
+          done
+          for f in heat_rates.json maintenance.json system_daily.json thermal_daily.json; do
+            [ -f "$f" ] && git mv -f "$f" data/xm/ || true
+          done
+          for f in dpng.json field_map.json gestor_daily.json gestor_meta.json gestor_monthly.json settings.json tgi_nominations.json transporters.json; do
+            [ -f "$f" ] && git mv -f "$f" data/ || true
+          done
+          touch inbox/.gitkeep inbox/processed/.gitkeep
+          git config user.name "holygas-bot"
+          git config user.email "bot@holygas.co"
+          git add -A
+          git diff --cached --quiet || git commit -m "repair: restore folder structure"
+          git push

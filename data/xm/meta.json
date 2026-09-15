@@ -1,18 +1,14 @@
 {
- "metrics": {
-  "gene": {
-   "metric": "Gene",
-   "entity": "Recurso"
-  },
-  "fuel_mbtu": {
-   "metric": "ConsCombustibleMBTU",
-   "entity": "RecursoComb"
-  },
-  "demand": {
-   "metric": "DemaCome",
-   "entity": "Sistema"
-  }
+ "source": "API XM servapibi.xm.com.co (Gene/Recurso, ConsCombustibleMBTU/Recurso, DemaCome/Sistema)",
+ "window": [
+  "2020-01-01",
+  "2026-09-15"
+ ],
+ "last_thermal_date": "2026-09-12",
+ "last_demand_date": "2026-09-12",
+ "chunks": {
+  "chunks_ok": 240,
+  "chunks_fail": 0
  },
- "last_thermal_date": null,
- "updated_utc": "2026-09-15T13:56Z"
+ "updated_utc": "2026-09-15T18:27Z"
 }

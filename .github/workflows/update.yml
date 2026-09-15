@@ -23,9 +23,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install -q pandas openpyxl requests lxml pydataxm pdfplumber
+      - run: pip install -q "pandas<3" "numpy<2" openpyxl requests lxml html5lib beautifulsoup4 pydataxm pdfplumber
       - name: Route inbox uploads
-        run: python scripts/process_uploads.py
+        run: |
+          mkdir -p inbox/processed
+          python scripts/process_uploads.py || echo "inbox routing skipped"
       - name: Probe transporter portals
         run: python scripts/collect_transporters.py || true
       - name: Sync XM (incremental)

@@ -95,7 +95,7 @@ footer{margin-top:40px;border-top:1px solid var(--rule);padding-top:12px;font-si
   </div>
 </div>
 
-<div class="headline" id="headline"></div>
+<div class="headline" id="headline"></div><span id="headlinet" style="display:none"></span>
 <div class="kpis" id="kpis"></div>
 <div class="fnote" id="kpinote"></div>
 
@@ -152,7 +152,7 @@ footer{margin-top:40px;border-top:1px solid var(--rule);padding-top:12px;font-si
 "use strict";
 /* ================= Data loading ================= */
 var FILES={gd:"data/gestor_daily.json",gm:"data/gestor_monthly.json",gme:"data/gestor_meta.json",dp:"data/dpng.json",fm:"data/field_map.json",
-  tg:"data/tgi_nominations.json",tr:"data/transporters.json",st:"data/settings.json",xt:"data/xm/thermal_daily.json",xs:"data/xm/system_daily.json",
+  tg:"data/tgi_nominations.json",tr:"data/transporters.json",st:"data/settings.json",xt:"data/xm/thermal_latest.json",xs:"data/xm/system_daily.json",
   xh:"data/xm/heat_rates.json",xm:"data/xm/maintenance.json",xmeta:"data/xm/meta.json"};
 var D={}, state={period:"90", field:null};
 var REPO="https://github.com/salimrashidc-pixel/holygas-gas-market";
@@ -166,10 +166,14 @@ async function loadAll(){
       try{var r=await fetch(FILES[k]+"?v="+Date.now());if(!r.ok)throw 0;D[k]=await r.json();}catch(e){D[k]=null;miss.push(FILES[k]);}
     }));
   }
-  var err=document.getElementById("err");
+  if(D.xt==null&&!window.__D){try{var r2=await fetch("data/xm/thermal_daily.json?v="+Date.now());if(r2.ok){D.xt=await r2.json();miss=miss.filter(function(m){return m.indexOf("thermal")<0;});}}catch(e){}}
+  var err=document.getElementById("err");var n=Object.keys(FILES).length;
+  LOADREP=(n-miss.length)+"/"+n+" data files loaded";
   if(miss.length){err.style.display="block";err.textContent="Could not load: "+miss.join(", ")+". The rest of the page renders with what is available.";}
-  try{renderAll();}catch(e){err.style.display="block";err.textContent="Render error: "+e.message;throw e;}
+  renderAll();
 }
+var LOADREP="";
+function safe(name,fn){try{fn();}catch(e){var el=document.getElementById(name+"t");if(el)el.textContent="Could not render this exhibit ("+e.message+")";var err=document.getElementById("err");err.style.display="block";err.textContent+=" ["+name+": "+e.message+"]";}}
 
 /* ================= Formatting & helpers ================= */
 var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -229,7 +233,7 @@ function renderAll(){
   /* meta */
   $("meta").innerHTML='<span>Gestor: '+(D.gme?fm0(D.gme.n_fields)+' fields, to '+D.gme.last_date:'—')+'</span><span class="dot">&middot;</span>'
     +'<span>XM: '+(xDays.length?fm0(xDays.length)+' days, '+xDays[0]+' to '+xLatest:'—')+'</span><span class="dot">&middot;</span>'
-    +'<span>DPNG: '+(D.dp?esc(D.dp.source.replace('DPNG ','')):'—')+'</span><span class="dot">&middot;</span><span>Rendered '+TODAY+'</span>';
+    +'<span>DPNG: '+(D.dp?esc(D.dp.source.replace('DPNG ','')):'—')+'</span><span class="dot">&middot;</span><span>Rendered '+TODAY+' · '+LOADREP+'</span>';
   $("foot").innerHTML='Sources: Gestor del Mercado (BEC bi-gas), MinEnergía DPNG, TGI CGA, Promigas &amp; Promioriente BEO, XM (API XM). Auto-refresh 4× daily via GitHub Actions; manual sources via inbox. Internal management view — not a regulatory filing.';
   /* chips */
   var years=[];var yrSet={};xDays.concat(gDays).forEach(function(d){yrSet[d.slice(0,4)]=1;});Object.keys(yrSet).sort().reverse().forEach(function(y){years.push(y);});
@@ -237,7 +241,7 @@ function renderAll(){
   $("chips").innerHTML=chips.map(function(c){return '<button class="chip'+(state.period===c[0]?' on':'')+'" data-p="'+c[0]+'">'+c[1]+'</button>';}).join('');
   Array.prototype.forEach.call(document.querySelectorAll('.chip'),function(b){b.onclick=function(){state.period=b.getAttribute('data-p');renderAll();};});
 
-  renderHeadline();renderEx1();renderEx2();renderEx3();renderEx4();renderEx5();renderEx6();renderEx7();renderEx8();
+  safe("headline",renderHeadline);safe("ex1",renderEx1);safe("ex2",renderEx2);safe("ex3",renderEx3);safe("ex4",renderEx4);safe("ex5",renderEx5);safe("ex6",renderEx6);safe("ex7",renderEx7);safe("ex8",renderEx8);
 }
 
 function renderHeadline(){
@@ -259,13 +263,13 @@ function renderHeadline(){
   var pre=M.xLatest&&isPrelim(M.xLatest)?'prelim to '+dLab(M.xLatest):'';
   var kp=[
     ['Total supply — '+(M.gLast?dLab(M.gLast):'—'),M.gLast?fm0(byDay[M.gLast].total/1000):'—',gAge>10?'amb':'',M.gLast?fm0(byDay[M.gLast].nat/1000)+' GBTUD national · '+fm0(byDay[M.gLast].imp/1000)+' imported':'Gestor'],
-    ['National vs declared PP',pp?pct(natG*1000/pp):'—',pp&&natG*1000/pp>1.05?'amb':'',pp?fm0(natG)+' / '+fm0(pp/1000)+' GBTUD · '+M.gLast.slice(0,7):'DPNG'],
+    ['National vs declared PP',pp?pct(natG*1000/pp):'—',pp&&natG*1000/pp>1.05?'amb':'',pp&&M.gLast?fm0(natG)+' / '+fm0(pp/1000)+' GBTUD · '+M.gLast.slice(0,7):'DPNG'],
     ['Thermal gas burn — '+(M.xLast?dLab(M.xLast):'—'),burnLast!=null?fm0(burnLast):'—','',(genL?fm1(genL)+' GWh gas-fired · ':'')+(pre||'mature')],
     ['Headroom — '+(common?dLab(common):'—'),head!=null?fm0(head):'—',head!=null?(head>0?'pos':'neg'):'','supply − burn, GBTUD, common date'],
     ['SIN demand',demL!=null?fm0(demL):'—','',M.xLast?'GWh-day · '+dLab(M.xLast):'XM'],
     ['Gas share of power',demL&&genL?pct(genL/demL):'—','','gas-fired GWh ÷ SIN demand'],
     ['Top field share',share!=null?pct(share):'',share>0.35?'amb':'',topF.length?esc(topF[0][0])+' of total supply':'—'],
-    ['Plants burning gas',M.xLast?Object.keys(D.xt[M.xLast]||{}).length:'—','','on '+(M.xLast?dLab(M.xLast):'—')+' · '+Object.keys(D.xh&&D.xh.plants||{}).length+' with 30-d heat rate']
+    ['Plants burning gas',M.xLast&&D.xt&&D.xt[M.xLast]?Object.keys(D.xt[M.xLast]).length:'—','','on '+(M.xLast?dLab(M.xLast):'—')+' · '+Object.keys(D.xh&&D.xh.plants||{}).length+' with 30-d heat rate']
   ];
   $("kpis").innerHTML=kp.map(function(k){return '<div class="kpi"><div class="lab">'+k[0]+'</div><div class="val num '+k[2]+'">'+k[1]+'</div><div class="sub num">'+k[3]+'</div></div>';}).join('');
   $("kpinote").innerHTML=M.xLatest&&isPrelim(M.xLatest)?'<b>Note.</b> XM values for '+dLab(addDays(matureCut(),1))+'–'+dLab(M.xLatest)+' are preliminary (partial settlement) and are re-pulled on every refresh until final; exhibits use mature days for comparisons.':'';

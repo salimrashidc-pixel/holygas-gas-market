@@ -104,6 +104,7 @@ def main():
         thermal[d][name] = {"gwh": round(a["gwh"], 3), "mbtu": round(a["mbtu"], 0), "hr": hr,
                             "fuel": "+".join(sorted(a["fuel"]))}
     dump(XMD / "thermal_daily.json", thermal)
+    dump(XMD / "thermal_latest.json", {d: thermal[d] for d in sorted(thermal)[-10:]})
 
     system = load(XMD / "system_daily.json", {})
     for d, plants in thermal.items():

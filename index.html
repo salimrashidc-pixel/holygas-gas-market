@@ -4,464 +4,507 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>HOLYGAS · Gas Market Terminal</title>
-<script src="vendor/chart.umd.min.js"></script>
+<title>HOLYGAS — Gas Market Terminal</title>
 <style>
 :root{
-  --navy:#1E3A7B; --blue:#294A9A; --blue-soft:#6E86C7; --magenta:#A3599F;
-  --ink:#17233F; --mut:#5D6B8A; --field:#F3F5FA; --card:#FFFFFF;
-  --line:#E1E6F0; --ok:#1F8A5B; --warn:#C77D1F; --bad:#B3433B;
-  --r:12px; --sh:0 1px 3px rgba(23,35,63,.08),0 4px 14px rgba(23,35,63,.06);
+  --ink:#131C33; --ink2:#3C4560; --mut:#6B7288;
+  --paper:#FCFCFB; --panel:#FFFFFF; --mist:#F2F3F7; --rule:#DDE0E8; --rule2:#EDEFF4;
+  --royal:#294A9A; --magenta:#A3599F; --pos:#1F7A4D; --neg:#B3282D; --amber:#A8761C;
+  --grad:linear-gradient(90deg,#294A9A 0%,#A3599F 100%);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{font:15px/1.45 "Inter","Segoe UI",system-ui,sans-serif;background:var(--field);color:var(--ink)}
-.num{font-variant-numeric:tabular-nums}
-header{background:linear-gradient(100deg,var(--navy) 55%,#3D2B66 100%);color:#fff;padding:14px 18px 12px}
-.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.brand h1{font-family:"Archivo","Inter",sans-serif;font-weight:800;font-size:19px;letter-spacing:.06em}
-.brand h1 b{color:#F0A7EA;font-weight:800}
-.brand .sub{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
-.brand .date{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px;opacity:.85}
-/* Signature: Balance Bar */
-#balbar{margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
-  border-radius:10px;padding:10px 12px}
-#balbar .row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;flex-wrap:wrap;gap:4px}
-#balbar .row b{font-weight:600}
-#balbar .track{position:relative;height:14px;border-radius:7px;background:rgba(255,255,255,.12);overflow:hidden}
-#balbar .sup{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#4C6DC4,#7FA0EE);border-radius:7px}
-#balbar .dem{position:absolute;top:0;bottom:0;width:3px;background:var(--magenta);box-shadow:0 0 0 2px rgba(163,89,159,.35)}
-#balbar .delta{font-family:"IBM Plex Mono",monospace}
-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;background:var(--card);
-  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;scrollbar-width:none}
-nav::-webkit-scrollbar{display:none}
-nav button{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--mut);
-  padding:7px 13px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
-nav button.on{background:var(--blue);border-color:var(--blue);color:#fff}
-nav button:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
-main{max-width:1180px;margin:0 auto;padding:14px}
-.tab{display:none}.tab.on{display:block}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
-.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;margin-bottom:12px}
-.kpi .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:700}
-.kpi .val{font-size:26px;font-weight:800;margin-top:2px}
-.kpi .un{font-size:12px;color:var(--mut);font-weight:600;margin-left:4px}
-.kpi .ctx{font-size:12px;color:var(--mut);margin-top:2px}
-h2{font-family:"Archivo","Inter",sans-serif;font-size:15px;font-weight:800;letter-spacing:.02em;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-h2 .chip{font-size:10px;letter-spacing:.08em;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
-.chip.ok{background:#E3F3EB;color:var(--ok)} .chip.warn{background:#FBF0DE;color:var(--warn)}
-.chip.bad{background:#F8E6E4;color:var(--bad)} .chip.info{background:#E8EDF9;color:var(--blue)}
-.cwrap{position:relative;height:300px}
-@media(max-width:640px){.cwrap{height:230px}.kpi .val{font-size:22px}}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);
-  text-align:left;padding:6px 8px;border-bottom:2px solid var(--line);white-space:nowrap}
-td{padding:6px 8px;border-bottom:1px solid var(--line)}
-td.r,th.r{text-align:right}
-tr:hover td{background:#F7F9FD}
-.pos{color:var(--ok);font-weight:600}.neg{color:var(--bad);font-weight:600}
-select,input[type=search],input[type=date]{padding:8px 10px;border:1px solid var(--line);border-radius:8px;
-  font:inherit;background:#fff;color:var(--ink);max-width:100%}
-.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
-.note{font-size:12px;color:var(--mut)}
-.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;background:#EDF1FA;color:var(--blue);font-weight:600;margin:1px 2px}
-.mono{font-family:"IBM Plex Mono",monospace;font-size:12px}
-.scrolly{overflow-x:auto}
-.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--mut)}
+body{background:var(--paper);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.45}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 72px}
+header{padding:26px 0 14px;border-bottom:1px solid var(--rule)}
+.kicker{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+h1{font-family:Georgia,serif;font-weight:400;font-size:27px;letter-spacing:-.01em}
+h1 b{font-weight:700}
+.gradline{height:3px;background:var(--grad);border-radius:2px;margin:12px 0 10px;max-width:220px}
+.meta{font-size:12px;color:var(--mut)} .meta span{white-space:nowrap} .meta .dot{margin:0 7px;color:var(--rule)}
+.controls{position:sticky;top:0;z-index:20;background:rgba(252,252,251,.96);backdrop-filter:blur(4px);border-bottom:1px solid var(--rule);padding:10px 0;margin-bottom:8px}
+.chips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--rule);background:var(--panel);color:var(--ink2);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:7px 13px;border-radius:999px;cursor:pointer;font-family:inherit}
+.chip.on{color:#fff;border-color:transparent;background:var(--grad);font-weight:600}
+.toolrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.tbtn{border:1px solid var(--rule);background:var(--panel);color:var(--ink2);font-size:11.5px;letter-spacing:.05em;padding:6px 11px;border-radius:6px;cursor:pointer;font-family:inherit;text-decoration:none}
+.tbtn:hover{border-color:var(--royal);color:var(--royal)}
+.headline{font-family:Georgia,serif;font-size:17px;line-height:1.5;color:var(--ink);padding:18px 0 4px;max-width:840px}
+.headline .pos{color:var(--pos)} .headline .neg{color:var(--neg)} .headline .amb{color:var(--amber)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:16px 0 6px}
+.kpi{background:var(--panel);padding:13px 14px 12px}
+.kpi .lab{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:7px;line-height:1.35}
+.kpi .val{font-family:Georgia,serif;font-size:22px;letter-spacing:-.01em}
+.kpi .sub{font-size:11px;color:var(--mut);margin-top:4px}
+.kpi .val.pos{color:var(--pos)} .kpi .val.neg{color:var(--neg)} .kpi .val.amb{color:var(--amber)}
+@media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi .val{font-size:19px}}
+.ex{margin-top:34px;border-top:1px solid var(--rule);padding-top:14px}
+.exno{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--magenta);font-weight:600;margin-bottom:5px}
+.ext{font-family:Georgia,serif;font-size:18.5px;line-height:1.35;max-width:820px}
+.exs{font-size:12px;color:var(--mut);margin-top:5px;max-width:820px}
+.chartbox{margin-top:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+svg{display:block}
+.axis{font-size:10px;fill:var(--mut)} .axlab{font-size:9px;fill:var(--mut);letter-spacing:.1em;text-transform:uppercase}
+.blab{font-size:10px;fill:var(--ink2)} .blab.strong{font-weight:700;fill:var(--ink)}
+.fnote{font-size:11px;color:var(--mut);margin-top:9px;max-width:820px} .fnote b{color:var(--ink2)}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12.5px}
+th{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);font-weight:600;text-align:right;padding:7px 8px;border-bottom:1px solid var(--ink)}
+th:first-child{text-align:left}
+td{padding:7px 8px;border-bottom:1px solid var(--rule2);text-align:right;white-space:nowrap}
+td:first-child{text-align:left;white-space:normal}
+tr.total td{border-top:1px solid var(--ink);border-bottom:none;font-weight:700}
+tr.sel td{background:var(--mist)} tbody tr{cursor:default} tbody tr.pick{cursor:pointer}
+.sharebar{display:inline-block;height:7px;background:var(--grad);border-radius:2px;vertical-align:middle;margin-right:6px;min-width:2px}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.flag{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid var(--rule2);align-items:flex-start}
+.sev{flex:0 0 auto;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:3px 8px;border-radius:3px;margin-top:2px}
+.sev.h{background:#F7E6E7;color:var(--neg)} .sev.m{background:#F6EEDD;color:var(--amber)} .sev.l{background:#E9EDF6;color:var(--royal)} .sev.ok{background:#E3F1E9;color:var(--pos)}
+.flag .ft{font-weight:600;font-size:13px} .flag .fb{font-size:12px;color:var(--ink2);margin-top:3px;line-height:1.5}
+.flag .fb .tag{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-right:4px}
+.method{background:var(--mist);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;margin-top:14px;font-size:12.5px;color:var(--ink2);line-height:1.6}
+.method b{color:var(--ink)} .method .f{font-family:Georgia,serif;font-size:13.5px;color:var(--ink);margin:8px 0;padding-left:12px;border-left:3px solid var(--magenta)}
+select,input[type=search]{padding:6px 9px;border:1px solid var(--rule);border-radius:6px;font:inherit;font-size:12.5px;background:#fff;color:var(--ink);max-width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.pill{display:inline-block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:2px 7px;border-radius:3px;vertical-align:middle;margin-left:6px}
+.pill.pre{background:#F6EEDD;color:var(--amber)} .pill.stale{background:#F7E6E7;color:var(--neg)} .pill.ok{background:#E3F1E9;color:var(--pos)}
+.empty{border:1.5px dashed var(--rule);border-radius:8px;padding:18px;text-align:center;color:var(--mut);font-size:12.5px;background:var(--mist);margin-top:12px}
 .empty b{color:var(--ink)}
-footer{max-width:1180px;margin:0 auto;padding:6px 16px 26px;font-size:11px;color:var(--mut)}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#err{display:none;background:#F7E6E7;color:var(--neg);padding:10px 14px;font-size:12.5px;margin-top:10px;border-radius:6px}
+footer{margin-top:40px;border-top:1px solid var(--rule);padding-top:12px;font-size:11px;color:var(--mut)}
+@media print{.controls{display:none}}
 </style>
 </head>
 <body>
+<div class="wrap">
 <header>
-  <div class="brand">
-    <h1>HOLY<b>GAS</b></h1>
-    <span class="sub">Gas Market Terminal · Colombia</span>
-    <span class="date num" id="today"></span>
-  </div>
-  <div id="balbar" aria-label="Supply vs thermal demand balance">
-    <div class="row">
-      <span><b style="color:#9FB6EE">Supply</b> (Gestor, latest) <span class="num" id="bbSup">—</span></span>
-      <span><b style="color:#F0A7EA">Thermal gas burn</b> (XM) <span class="num" id="bbDem">—</span></span>
-      <span class="delta num" id="bbDelta"></span>
-    </div>
-    <div class="track"><div class="sup" id="bbSupBar" style="width:0%"></div><div class="dem" id="bbDemMark" style="left:0%"></div></div>
-  </div>
+  <div class="kicker">HOLYGAS S.A.S. E.S.P. &middot; Commercial &amp; Trading</div>
+  <h1><b>Gas Market Terminal</b> — Colombia supply &amp; thermal demand</h1>
+  <div class="gradline"></div>
+  <div class="meta num" id="meta">Loading data…</div>
+  <div id="err"></div>
 </header>
 
-<nav id="tabs" role="tablist">
-  <button data-t="balance" class="on">Balance</button>
-  <button data-t="fields">Supply · Fields</button>
-  <button data-t="transp">Supply · Transporters</button>
-  <button data-t="tgi">TGI Nominations</button>
-  <button data-t="thermal">Thermal &amp; Power</button>
-  <button data-t="status">Status</button>
-</nav>
+<div class="controls">
+  <div class="chips" id="chips"></div>
+  <div class="toolrow">
+    <button class="tbtn" id="btnReload">&#8635;&nbsp; Reload data</button>
+    <a class="tbtn" id="btnInbox" target="_blank" rel="noopener">&#8593;&nbsp; Upload a source file (inbox)</a>
+    <span id="updmsg" style="font-size:11.5px;color:var(--mut)"></span>
+  </div>
+</div>
 
-<main>
-<!-- ============ BALANCE ============ -->
-<section class="tab on" id="tab-balance">
-  <div class="grid" id="kpis"></div>
-  <div class="card">
-    <h2>National supply by process — last 60 days <span class="chip info" id="supChip"></span></h2>
-    <div class="cwrap"><canvas id="chSupply"></canvas></div>
-    <p class="note">Fact: Gestor bi-gas daily energy per field, MBTU/day. Declared PP (DPNG) overlaid as monthly reference. Processes may partially overlap — validate category definitions with the Gestor before summing across all five.</p>
-  </div>
-  <div class="card">
-    <h2>Top fields — latest day vs declared potential</h2>
-    <div class="scrolly"><table id="tblTop"><thead><tr>
-      <th>Field</th><th>Region</th><th class="r">Latest MBTUD</th><th class="r">7-d avg</th>
-      <th class="r">PP declared</th><th class="r">Real / PP</th></tr></thead><tbody></tbody></table></div>
-  </div>
-</section>
+<div class="headline" id="headline"></div>
+<div class="kpis" id="kpis"></div>
+<div class="fnote" id="kpinote"></div>
 
-<!-- ============ FIELDS ============ -->
-<section class="tab" id="tab-fields">
-  <div class="card">
-    <div class="controls">
-      <input type="search" id="fSearch" placeholder="Search field…" list="fList"><datalist id="fList"></datalist>
-      <select id="fSel"></select>
-      <span class="note" id="fInfo"></span>
-    </div>
-    <h2 id="fTitle">Field detail</h2>
-    <div class="cwrap"><canvas id="chField"></canvas></div>
-  </div>
-  <div class="card">
-    <h2>Monthly history since Mar-2022 (avg MBTUD)</h2>
-    <div class="cwrap"><canvas id="chFieldM"></canvas></div>
-  </div>
-</section>
+<section class="ex"><div class="exno">Exhibit 1 &middot; Balance</div>
+  <div class="ext" id="ex1t"></div><div class="exs" id="ex1s"></div>
+  <div class="chartbox" id="ex1c"></div><div class="fnote" id="ex1n"></div></section>
 
-<!-- ============ TRANSPORTERS ============ -->
-<section class="tab" id="tab-transp">
-  <div class="card" id="transpCard">
-    <h2>Transporter injections <span class="chip warn" id="trChip">upload mode</span></h2>
-    <div id="trBody"></div>
-  </div>
-  <div class="card">
-    <h2>How to feed this tab (30 seconds, from your phone)</h2>
-    <p class="note">1) Export the daily file from the portal (TGI CGA · Promigas BEO · Promioriente BEO). 2) In GitHub → this repo → <b>inbox/</b> → “Add file · Upload”. 3) The pipeline sniffs the layout, parses it and refreshes here in ~2 min. Automated scraping of these portals is attempted on every run; the Status tab shows each probe’s result so we can graduate a source from manual to automatic once its endpoint is confirmed.</p>
-  </div>
-</section>
+<section class="ex"><div class="exno">Exhibit 2 &middot; Supply by process</div>
+  <div class="ext" id="ex2t"></div><div class="exs">Gestor del Mercado daily energy by process, stacked, with the declared production potential (DPNG) as the reference line.</div>
+  <div class="chartbox" id="ex2c"></div><div class="fnote" id="ex2n"></div></section>
 
-<!-- ============ TGI ============ -->
-<section class="tab" id="tab-tgi">
-  <div class="card">
-    <div class="controls">
-      <select id="tgiDay"></select>
-      <select id="tgiView">
-        <option value="points">Program by exit point</option>
-        <option value="routes">Route nominations</option>
-        <option value="detail">Client detail (Nom vs Confirmed)</option>
-      </select>
-      <input type="search" id="tgiFilter" placeholder="Filter…">
-    </div>
-    <h2 id="tgiTitle">TGI · Program by exit point</h2>
-    <div class="cwrap" id="tgiChartWrap"><canvas id="chTgi"></canvas></div>
-    <div class="scrolly"><table id="tblTgi"><thead></thead><tbody></tbody></table></div>
-    <p class="note" id="tgiNote"></p>
-  </div>
-</section>
+<section class="ex"><div class="exno">Exhibit 3 &middot; Fields</div>
+  <div class="ext" id="ex3t"></div><div class="exs" id="ex3s"></div>
+  <div class="tscroll" id="ex3c"></div>
+  <div class="row"><select id="fSel"></select><span class="fnote" id="fInfo" style="margin:0"></span></div>
+  <div class="chartbox" id="ex3d"></div><div class="fnote" id="ex3n"></div></section>
 
-<!-- ============ THERMAL ============ -->
-<section class="tab" id="tab-thermal">
-  <div class="grid" id="thKpis"></div>
-  <div class="card">
-    <h2>SIN demand vs thermal gas burn <span class="chip" id="thChip"></span></h2>
-    <div class="cwrap"><canvas id="chTh"></canvas></div>
-  </div>
-  <div class="card">
-    <h2>Gas plants — last available day</h2>
-    <div class="scrolly"><table id="tblTh"><thead><tr>
-      <th>Plant</th><th class="r">GWh</th><th class="r">MBTU</th>
-      <th class="r">Implied HR (MBTU/MWh)</th><th class="r">HR 30-d median</th></tr></thead><tbody></tbody></table></div>
-  </div>
-  <div class="card">
-    <h2>XM weekly outlook — maintenance &amp; gas sector</h2>
-    <div id="maintBody" class="note"></div>
-  </div>
-</section>
+<section class="ex"><div class="exno">Exhibit 4 &middot; Thermal gas burn by plant</div>
+  <div class="ext" id="ex4t"></div><div class="exs" id="ex4s"></div>
+  <div class="chartbox" id="ex4c"></div><div class="tscroll" id="ex4tb"></div><div class="fnote" id="ex4n"></div></section>
 
-<!-- ============ STATUS ============ -->
-<section class="tab" id="tab-status">
-  <div class="card">
-    <h2>Source freshness</h2>
-    <div class="scrolly"><table id="tblStatus"><thead><tr>
-      <th>Source</th><th>Cadence</th><th>Last data</th><th>State</th></tr></thead><tbody></tbody></table></div>
-  </div>
-  <div class="card">
-    <h2>Last collector log</h2>
-    <div id="collLog" class="mono note"></div>
-  </div>
-</section>
-</main>
+<section class="ex"><div class="exno">Exhibit 5 &middot; Power demand vs gas burn</div>
+  <div class="ext" id="ex5t"></div><div class="exs">SIN commercial demand (GWh-day, left) against gas burned in thermal plants (GBTUD, right). Monthly averages for multi-year periods; daily for 90/180-day windows.</div>
+  <div class="chartbox" id="ex5c"></div><div class="fnote" id="ex5n"></div></section>
 
-<footer>HOLYGAS S.A.S. E.S.P. — internal market intelligence. Sources: Gestor del Mercado (BEC), MinEnergía DPNG, TGI CGA, Promigas/Promioriente BEO, XM. Figures in native units per source; conversions per settings.json.</footer>
+<section class="ex"><div class="exno">Exhibit 6 &middot; TGI nominations</div>
+  <div class="ext" id="ex6t"></div><div class="exs" id="ex6s"></div>
+  <div class="row"><select id="tgiDay"></select><select id="tgiView"><option value="points">Program by exit point</option><option value="detail">Client Δ (confirmed − nominated)</option><option value="routes">Route nominations</option></select><input type="search" id="tgiQ" placeholder="Filter…"></div>
+  <div class="chartbox" id="ex6c"></div><div class="tscroll" id="ex6tb"></div><div class="fnote" id="ex6n"></div></section>
+
+<section class="ex"><div class="exno">Exhibit 7 &middot; Transporter injections</div>
+  <div class="ext" id="ex7t"></div><div class="exs">Daily receipts at entry points — TGI, Promigas, Promioriente. Automated probes run on every refresh; sources graduate to automatic once a probe succeeds five days in a row.</div>
+  <div id="ex7c"></div></section>
+
+<section class="ex"><div class="exno">Exhibit 8 &middot; Data hygiene &amp; freshness</div>
+  <div class="ext">What is current, what is stale, and what needs a hand — resolve these before the numbers travel</div>
+  <div class="exs">Freshness is judged against each source's own publication cadence. Flags recompute on every refresh.</div>
+  <div class="tscroll" id="ex8f"></div><div id="ex8c"></div></section>
+
+<section class="ex"><div class="exno">Methodology</div>
+  <div class="ext">How every number on this page is computed</div>
+  <div class="method">
+    <div class="f">Headroom&nbsp;=&nbsp;Total supply (Gestor, all processes) &minus; Thermal gas burn (XM)</div>
+    <b>Supply.</b> Gestor del Mercado daily energy per field (MBTU/day), all production types and processes. National-only supply is compared against the declared production potential (PP) from the DPNG resolution in force; imported gas is excluded from that ratio. Process categories are shown as published; their exact overlap should be validated with the Gestor before summing across all five.<br><br>
+    <b>Thermal burn.</b> XM <i>ConsCombustibleMBTU</i> per resource, keeping fuel names containing GAS (domestic and imported). Implied heat rate = MBTU burned &divide; MWh generated (<i>Gene</i> per resource); the 30-day median is used as the plant reference, bounded 4–20 MBTU/MWh. Dual-fuel plants dilute the ratio.<br><br>
+    <b>Maturity.</b> XM settles demand and fuel data over several days; values younger than five days are labelled preliminary and are re-pulled on every refresh until final. Balance figures use the latest date on which both supply and burn are mature.<br><br>
+    <b>Units.</b> GBTUD for national aggregates, MBTUD for fields and plants, GWh-day for power, MBTU/MWh for heat rates. Transporter volumes in their native units (KPC) with the PC factor from settings.
+  </div></section>
+
+<footer><span id="foot"></span></footer>
+</div>
 
 <script>
 "use strict";
-const $=(q,el=document)=>el.querySelector(q), $$=(q,el=document)=>[...el.querySelectorAll(q)];
-const fmt=(v,d=0)=>v==null||isNaN(v)?"—":Number(v).toLocaleString("en-US",{maximumFractionDigits:d,minimumFractionDigits:d});
-const BLUE="#294A9A",BLUES=["#294A9A","#4C6DC4","#7FA0EE","#A9BEF2","#1E3A7B"],MAG="#A3599F";
-Chart.defaults.font.family="'Inter',sans-serif";Chart.defaults.color="#5D6B8A";
-$("#today").textContent=new Date().toISOString().slice(0,10);
-
-const D={}; // datasets
-const files={gd:"data/gestor_daily.json",gm:"data/gestor_monthly.json",gme:"data/gestor_meta.json",
-  dp:"data/dpng.json",fm:"data/field_map.json",tg:"data/tgi_nominations.json",
-  tr:"data/transporters.json",st:"data/settings.json",
-  xt:"data/xm/thermal_daily.json",xs:"data/xm/system_daily.json",
+/* ================= Data loading ================= */
+var FILES={gd:"data/gestor_daily.json",gm:"data/gestor_monthly.json",gme:"data/gestor_meta.json",dp:"data/dpng.json",fm:"data/field_map.json",
+  tg:"data/tgi_nominations.json",tr:"data/transporters.json",st:"data/settings.json",xt:"data/xm/thermal_daily.json",xs:"data/xm/system_daily.json",
   xh:"data/xm/heat_rates.json",xm:"data/xm/maintenance.json",xmeta:"data/xm/meta.json"};
+var D={}, state={period:"90", field:null};
+var REPO="https://github.com/salimrashidc-pixel/holygas-gas-market";
+document.getElementById("btnInbox").href=REPO+"/upload/main/inbox";
 
 async function loadAll(){
-  await Promise.all(Object.entries(files).map(async([k,p])=>{
-    try{const r=await fetch(p+"?v="+Date.now());D[k]=r.ok?await r.json():null}
-    catch(e){D[k]=null}
-  }));
-  build();
+  var miss=[];
+  if(window.__D){D=window.__D;}
+  else{
+    await Promise.all(Object.keys(FILES).map(async function(k){
+      try{var r=await fetch(FILES[k]+"?v="+Date.now());if(!r.ok)throw 0;D[k]=await r.json();}catch(e){D[k]=null;miss.push(FILES[k]);}
+    }));
+  }
+  var err=document.getElementById("err");
+  if(miss.length){err.style.display="block";err.textContent="Could not load: "+miss.join(", ")+". The rest of the page renders with what is available.";}
+  try{renderAll();}catch(e){err.style.display="block";err.textContent="Render error: "+e.message;throw e;}
 }
 
-/* ---------- helpers over gestor rows ---------- */
-function gestorByDay(){ // date -> {total, byProc:{}, byField:{}}
-  const out={};
-  (D.gd?.rows||[]).forEach(([d,t,p,c,v])=>{
-    const o=out[d]??={total:0,nat:0,byProc:{},byField:{}};
-    o.total+=v; if(t==="NACIONAL")o.nat+=v;
-    o.byProc[p]=(o.byProc[p]||0)+v; o.byField[c]=(o.byField[c]||0)+v;
-  });
+/* ================= Formatting & helpers ================= */
+var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fm0(n){return n==null||isNaN(n)?"—":Number(n).toLocaleString("en-US",{maximumFractionDigits:0});}
+function fm1(n){return n==null||isNaN(n)?"—":Number(n).toLocaleString("en-US",{minimumFractionDigits:1,maximumFractionDigits:1});}
+function fm2(n){return n==null||isNaN(n)?"—":Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pct(n){return n==null||isNaN(n)?"—":fm1(n*100)+"%";}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function dLab(d){return MN[+d.slice(5,7)-1]+" "+(+d.slice(8,10));}
+function mLab(m){return MN[+m.slice(5,7)-1]+" "+m.slice(2,4);}
+function addDays(d,n){var t=new Date(d+"T00:00:00Z");t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10);}
+function daysBetween(a,b){return Math.round((new Date(b+"T00:00:00Z")-new Date(a+"T00:00:00Z"))/864e5);}
+var TODAY=new Date().toISOString().slice(0,10);
+function $(id){return document.getElementById(id);}
+
+/* ---- SVG helpers ---- */
+function svgOpen(w,h){return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="min-width:'+Math.min(w,560)+'px" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#294A9A"/><stop offset="1" stop-color="#A3599F"/></linearGradient></defs>';}
+function line(x1,y1,x2,y2,c,w,dash){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';}
+function rect(x,y,w,h,c,rx,extra){return '<rect x="'+x+'" y="'+y+'" width="'+Math.max(w,0)+'" height="'+Math.max(h,0)+'" fill="'+c+'" rx="'+(rx||0)+'"'+(extra||'')+'/>';}
+function text(x,y,s,cls,anchor,extra){return '<text x="'+x+'" y="'+y+'" class="'+(cls||'blab')+'" text-anchor="'+(anchor||'middle')+'"'+(extra||'')+'>'+esc(s)+'</text>';}
+function pathOf(pts){return pts.length?'M'+pts.map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' L'):'';}
+function niceMax(v){if(!(v>0))return 1;var p=Math.pow(10,Math.floor(Math.log10(v)));var m=v/p;var n=m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10;return n*p;}
+var PROC_COL=["#294A9A","#4C6DC4","#7FA0EE","#B7C6F1","#1E3A7B","#9AA1B5"];
+
+/* ================= Model ================= */
+function gestorByDay(){
+  var out={};(D.gd&&D.gd.rows||[]).forEach(function(r){var d=r[0],t=r[1],p=r[2],c=r[3],v=r[4];
+    var o=out[d]||(out[d]={total:0,nat:0,imp:0,byProc:{},byField:{}});
+    o.total+=v;if(t==="NACIONAL")o.nat+=v;else o.imp+=v;o.byProc[p]=(o.byProc[p]||0)+v;o.byField[c]=(o.byField[c]||0)+v;});
   return out;
 }
-function declaredPP(month){ // national PP MBTUD for YYYY-MM
-  let s=0; const f=D.dp?.fields||{};
-  for(const k in f){const m=f[k].monthly?.[month]; if(m) s+=m.pp||0;}
-  return s||null;
+function ppMonth(m){var f=D.dp&&D.dp.fields||{},s=0,n=0;for(var k in f){var x=f[k].monthly&&f[k].monthly[m];if(x){s+=x.pp||0;n++;}}return n?s:null;}
+function matureCut(){return addDays(TODAY,-5);}
+function xmBurn(d){var s=D.xs&&D.xs[d];return s&&s.gas_burn_mbtud!=null?s.gas_burn_mbtud:null;}
+function xmDem(d){var s=D.xs&&D.xs[d];return s&&s.demand_gwh!=null?s.demand_gwh:null;}
+function isPrelim(d){var s=D.xs&&D.xs[d];return !!(s&&s.prelim);}
+function lastMatureXM(){var ds=Object.keys(D.xs||{}).filter(function(d){return !isPrelim(d)&&xmBurn(d)!=null;}).sort();return ds[ds.length-1]||null;}
+function periodIsDaily(p){return p==="90"||p==="180";}
+function monthlyXM(){ /* month -> {burn avg MBTUD, dem avg GWh, n} */
+  var acc={};Object.keys(D.xs||{}).forEach(function(d){if(isPrelim(d))return;var m=d.slice(0,7),s=D.xs[d];var a=acc[m]||(acc[m]={b:0,nb:0,dm:0,nd:0});
+    if(s.gas_burn_mbtud!=null){a.b+=s.gas_burn_mbtud;a.nb++;}if(s.demand_gwh!=null){a.dm+=s.demand_gwh;a.nd++;}});
+  var out={};Object.keys(acc).forEach(function(m){var a=acc[m];out[m]={burn:a.nb?a.b/a.nb:null,dem:a.nd?a.dm/a.nd:null};});return out;
+}
+function monthsInPeriod(p,allMonths){
+  var ms=allMonths.slice().sort();
+  if(p==="All")return ms;
+  if(p==="YTD"){var y=TODAY.slice(0,4);return ms.filter(function(m){return m.slice(0,4)===y;});}
+  return ms.filter(function(m){return m.slice(0,4)===p;});
 }
 
-/* ---------- Balance tab ---------- */
-let charts={};
-function mkChart(id,cfg){charts[id]?.destroy();charts[id]=new Chart($(id),cfg);}
-function buildBalance(){
-  const byDay=gestorByDay(), days=Object.keys(byDay).sort();
-  const last=days.at(-1), lastO=byDay[last]||{total:0,byProc:{}};
-  const supG=lastO.total/1000, natG=(lastO.nat||0)/1000;
-  const ppM=declaredPP(last?.slice(0,7)); const ppG=ppM?ppM/1000:null;
+/* ================= Render ================= */
+var MODEL={};
+function renderAll(){
+  var byDay=gestorByDay();var gDays=Object.keys(byDay).sort();var gLast=gDays[gDays.length-1]||null;
+  var xLast=lastMatureXM();var xDays=Object.keys(D.xs||{}).sort();var xLatest=xDays[xDays.length-1]||null;
+  MODEL={byDay:byDay,gDays:gDays,gLast:gLast,xLast:xLast,xLatest:xLatest};
+  /* meta */
+  $("meta").innerHTML='<span>Gestor: '+(D.gme?fm0(D.gme.n_fields)+' fields, to '+D.gme.last_date:'—')+'</span><span class="dot">&middot;</span>'
+    +'<span>XM: '+(xDays.length?fm0(xDays.length)+' days, '+xDays[0]+' to '+xLatest:'—')+'</span><span class="dot">&middot;</span>'
+    +'<span>DPNG: '+(D.dp?esc(D.dp.source.replace('DPNG ','')):'—')+'</span><span class="dot">&middot;</span><span>Rendered '+TODAY+'</span>';
+  $("foot").innerHTML='Sources: Gestor del Mercado (BEC bi-gas), MinEnergía DPNG, TGI CGA, Promigas &amp; Promioriente BEO, XM (API XM). Auto-refresh 4× daily via GitHub Actions; manual sources via inbox. Internal management view — not a regulatory filing.';
+  /* chips */
+  var years=[];var yrSet={};xDays.concat(gDays).forEach(function(d){yrSet[d.slice(0,4)]=1;});Object.keys(yrSet).sort().reverse().forEach(function(y){years.push(y);});
+  var chips=[["90","90 d"],["180","180 d"],["YTD","YTD"]].concat(years.filter(function(y){return y!==TODAY.slice(0,4);}).map(function(y){return [y,y];})).concat([["All","All"]]);
+  $("chips").innerHTML=chips.map(function(c){return '<button class="chip'+(state.period===c[0]?' on':'')+'" data-p="'+c[0]+'">'+c[1]+'</button>';}).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'),function(b){b.onclick=function(){state.period=b.getAttribute('data-p');renderAll();};});
 
-  // XM burn latest
-  const xs=D.xs||{}; const xdays=Object.keys(xs).sort(); const xl=xdays.at(-1);
-  const burn=xl?xs[xl]?.gas_burn_mbtud:null, demGWh=xl?xs[xl]?.demand_gwh:null;
-
-  // Balance bar
-  $("#bbSup").textContent=fmt(supG)+" GBTUD ("+(last||"—")+")";
-  $("#bbDem").textContent=burn?fmt(burn/1000)+" GBTUD ("+xl+")":"pending XM sync";
-  const cap=Math.max(supG,burn?burn/1000:0,ppG||0)*1.1||1;
-  $("#bbSupBar").style.width=(supG/cap*100)+"%";
-  if(burn){$("#bbDemMark").style.left=(burn/1000/cap*100)+"%";
-    $("#bbDelta").textContent="Δ "+fmt(supG-burn/1000)+" GBTUD headroom";}
-  else{$("#bbDemMark").style.display="none";$("#bbDelta").textContent="";}
-
-  // KPIs
-  const kp=[["Total supply (latest)",fmt(supG,0),"GBTUD",last],
-    ["National vs declared PP",ppG?fmt(natG/ppG*100,1)+"%":"—",fmt(natG)+" / "+(ppG?fmt(ppG):"—")+" GBTUD","DPNG Res. 01205 · national only"],
-    ["Thermal gas burn",burn?fmt(burn/1000,0):"—","GBTUD",xl||"pending XM"],
-    ["SIN demand",demGWh?fmt(demGWh,0):"—","GWh-day",xl||"pending XM"],
-    ["Thermal outlook wk-30",(D.xm?.thermal_outlook?.week30_avg_thermal_gwh_day||[]).join("–")||"—","GWh-day","XM CP deck"]];
-  $("#kpis").innerHTML=kp.map(([l,v,u,c])=>`<div class="card kpi"><div class="lbl">${l}</div><div class="val num">${v}<span class="un">${u}</span></div><div class="ctx">${c??""}</div></div>`).join("");
-  $("#supChip").textContent="last data "+(last||"—");
-
-  // Stacked supply by process, 60d + declared line
-  const w=days.slice(-60);
-  const procs=[...new Set(w.flatMap(d=>Object.keys(byDay[d].byProc)))];
-  const ds=procs.map((p,i)=>({label:p,data:w.map(d=>(byDay[d].byProc[p]||0)/1000),
-    backgroundColor:BLUES[i%BLUES.length],stack:"s",borderWidth:0}));
-  ds.push({label:"Declared PP",type:"line",data:w.map(d=>{const m=declaredPP(d.slice(0,7));return m?m/1000:null}),
-    borderColor:MAG,borderDash:[6,4],pointRadius:0,borderWidth:2,yAxisID:"y"});
-  mkChart("#chSupply",{type:"bar",data:{labels:w.map(d=>d.slice(5)),datasets:ds},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
-      scales:{x:{stacked:true,ticks:{maxTicksLimit:10}},y:{stacked:true,title:{display:true,text:"GBTUD"}}},
-      plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:11}}}}}});
-
-  // Top fields table
-  const prev7=days.slice(-8,-1);
-  const rows=Object.entries(lastO.byField).sort((a,b)=>b[1]-a[1]).slice(0,15).map(([f,v])=>{
-    const avg=prev7.length?prev7.reduce((s,d)=>s+(byDay[d].byField[f]||0),0)/prev7.length:null;
-    const pp=D.dp?.fields?.[f]?.monthly?.[last.slice(0,7)]?.pp??D.dp?.fields?.[f]?.annual_pp?.[last.slice(0,4)];
-    const util=pp?v/pp*100:null; const reg=D.fm?.[f]?.region||"";
-    return `<tr><td>${f}</td><td>${reg}</td><td class="r num">${fmt(v)}</td><td class="r num">${fmt(avg)}</td>
-      <td class="r num">${fmt(pp)}</td><td class="r num ${util>100?'pos':util<70?'neg':''}">${util?fmt(util,0)+"%":"—"}</td></tr>`;
-  }).join("");
-  $("#tblTop tbody").innerHTML=rows;
+  renderHeadline();renderEx1();renderEx2();renderEx3();renderEx4();renderEx5();renderEx6();renderEx7();renderEx8();
 }
 
-/* ---------- Fields tab ---------- */
-function buildFields(){
-  const fields=[...new Set((D.gd?.rows||[]).map(r=>r[3]))].sort();
-  $("#fSel").innerHTML=fields.map(f=>`<option>${f}</option>`).join("");
-  $("#fList").innerHTML=fields.map(f=>`<option value="${f}">`).join("");
-  const draw=f=>{
-    $("#fTitle").textContent=f;
-    const meta=D.fm?.[f];
-    $("#fInfo").innerHTML=meta?`<span class="tag">${meta.region||"?"}</span> ${meta.producers.map(p=>`<span class="tag">${p}</span>`).join("")}`:"";
-    const rows=(D.gd?.rows||[]).filter(r=>r[3]===f);
-    const byDay={};rows.forEach(([d,,p,,v])=>{byDay[d]=(byDay[d]||0)+v});
-    const days=Object.keys(byDay).sort();
-    const pp=days.map(d=>D.dp?.fields?.[f]?.monthly?.[d.slice(0,7)]?.pp??null);
-    mkChart("#chField",{type:"line",data:{labels:days.map(d=>d.slice(5)),datasets:[
-      {label:"Real MBTUD",data:days.map(d=>byDay[d]),borderColor:BLUE,backgroundColor:"rgba(41,74,154,.12)",fill:true,pointRadius:0,borderWidth:2},
-      {label:"Declared PP",data:pp,borderColor:MAG,borderDash:[6,4],pointRadius:0,borderWidth:2}]},
-      options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{maxTicksLimit:10}},y:{title:{display:true,text:"MBTUD"}}},
-        plugins:{legend:{position:"bottom"}},interaction:{mode:"index",intersect:false}}});
-    const mo=D.gm?.fields?.[f]||{};const ms=Object.keys(mo).sort();
-    mkChart("#chFieldM",{type:"bar",data:{labels:ms,datasets:[{label:"Avg MBTUD",data:ms.map(m=>mo[m]),backgroundColor:BLUES[1],borderWidth:0}]},
-      options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{maxTicksLimit:12}},y:{title:{display:true,text:"MBTUD"}}},plugins:{legend:{display:false}}}});
-  };
-  $("#fSel").onchange=e=>draw(e.target.value);
-  $("#fSearch").oninput=e=>{if(fields.includes(e.target.value)){$("#fSel").value=e.target.value;draw(e.target.value);}};
-  const def=fields.includes("CUSIANA")?"CUSIANA":fields[0]; if(def){$("#fSel").value=def;draw(def);}
+function renderHeadline(){
+  var M=MODEL,byDay=M.byDay;
+  var common=null;for(var i=M.gDays.length-1;i>=0;i--){var d=M.gDays[i];if(xmBurn(d)!=null&&!isPrelim(d)){common=d;break;}}
+  var sup=common?byDay[common].total/1000:null,burn=common?xmBurn(common)/1000:null,head=sup!=null&&burn!=null?sup-burn:null;
+  var burnLast=M.xLast?xmBurn(M.xLast)/1000:null;
+  var gAge=M.gLast?daysBetween(M.gLast,TODAY):null;
+  var pp=M.gLast?ppMonth(M.gLast.slice(0,7)):null;var natG=M.gLast?byDay[M.gLast].nat/1000:null;
+  var hl='';
+  if(common){hl='On '+dLab(common)+' (last day with mature data on both sides) the market supplied <b>'+fm0(sup)+' GBTUD</b> against a thermal gas burn of <b>'+fm0(burn)+' GBTUD</b>, leaving <b class="'+(head>0?'pos':'neg')+'">'+fm0(head)+' GBTUD</b> for non-thermal demand.';}
+  else hl='Supply and thermal burn do not yet overlap on any mature date.';
+  if(M.xLast)hl+=' Thermal burn is current to '+dLab(M.xLast)+' at <b>'+fm0(burnLast)+' GBTUD</b>.';
+  if(gAge!=null&&gAge>10)hl+=' <b class="amb">Supply data is '+gAge+' days old</b> — the Gestor export needs to be uploaded to the inbox.';
+  $("headline").innerHTML=hl;
+  var topF=M.gLast?Object.keys(byDay[M.gLast].byField).map(function(f){return [f,byDay[M.gLast].byField[f]];}).sort(function(a,b){return b[1]-a[1];}):[];
+  var share=topF.length?topF[0][1]/byDay[M.gLast].total:null;
+  var demL=M.xLast?xmDem(M.xLast):null;var genL=M.xLast&&D.xs[M.xLast].gas_gen_gwh;
+  var pre=M.xLatest&&isPrelim(M.xLatest)?'prelim to '+dLab(M.xLatest):'';
+  var kp=[
+    ['Total supply — '+(M.gLast?dLab(M.gLast):'—'),M.gLast?fm0(byDay[M.gLast].total/1000):'—',gAge>10?'amb':'',M.gLast?fm0(byDay[M.gLast].nat/1000)+' GBTUD national · '+fm0(byDay[M.gLast].imp/1000)+' imported':'Gestor'],
+    ['National vs declared PP',pp?pct(natG*1000/pp):'—',pp&&natG*1000/pp>1.05?'amb':'',pp?fm0(natG)+' / '+fm0(pp/1000)+' GBTUD · '+M.gLast.slice(0,7):'DPNG'],
+    ['Thermal gas burn — '+(M.xLast?dLab(M.xLast):'—'),burnLast!=null?fm0(burnLast):'—','',(genL?fm1(genL)+' GWh gas-fired · ':'')+(pre||'mature')],
+    ['Headroom — '+(common?dLab(common):'—'),head!=null?fm0(head):'—',head!=null?(head>0?'pos':'neg'):'','supply − burn, GBTUD, common date'],
+    ['SIN demand',demL!=null?fm0(demL):'—','',M.xLast?'GWh-day · '+dLab(M.xLast):'XM'],
+    ['Gas share of power',demL&&genL?pct(genL/demL):'—','','gas-fired GWh ÷ SIN demand'],
+    ['Top field share',share!=null?pct(share):'',share>0.35?'amb':'',topF.length?esc(topF[0][0])+' of total supply':'—'],
+    ['Plants burning gas',M.xLast?Object.keys(D.xt[M.xLast]||{}).length:'—','','on '+(M.xLast?dLab(M.xLast):'—')+' · '+Object.keys(D.xh&&D.xh.plants||{}).length+' with 30-d heat rate']
+  ];
+  $("kpis").innerHTML=kp.map(function(k){return '<div class="kpi"><div class="lab">'+k[0]+'</div><div class="val num '+k[2]+'">'+k[1]+'</div><div class="sub num">'+k[3]+'</div></div>';}).join('');
+  $("kpinote").innerHTML=M.xLatest&&isPrelim(M.xLatest)?'<b>Note.</b> XM values for '+dLab(addDays(matureCut(),1))+'–'+dLab(M.xLatest)+' are preliminary (partial settlement) and are re-pulled on every refresh until final; exhibits use mature days for comparisons.':'';
 }
 
-/* ---------- Transporters tab ---------- */
-function buildTransp(){
-  const s=D.tr?.sources||{};
-  const names=Object.keys(s);
-  if(!names.length){
-    $("#trBody").innerHTML=`<div class="empty"><b>No automated transporter data yet.</b><br>
-      The collector probes TGI CGA, Promigas and Promioriente on every run — see Status tab for each probe result.<br>
-      Meanwhile: drop the daily export in <b>inbox/</b> and it appears here.</div>`;
-    return;
-  }
-  $("#trChip").textContent="auto";$("#trChip").className="chip ok";
-  let html="";
-  names.forEach(n=>{
-    const days=Object.keys(s[n]).sort();const last=days.at(-1);const pts=s[n][last];
-    const tot=Object.values(pts).reduce((a,b)=>a+b,0);
-    html+=`<h2 style="margin-top:10px">${n} <span class="chip info">${last}</span> <span class="note num">total ${fmt(tot)} (native units)</span></h2>
-    <div class="scrolly"><table><thead><tr><th>Injection point</th><th class="r">Value</th></tr></thead><tbody>`+
-    Object.entries(pts).sort((a,b)=>b[1]-a[1]).map(([p,v])=>`<tr><td>${p}</td><td class="r num">${fmt(v,1)}</td></tr>`).join("")+
-    `</tbody></table></div>`;
-  });
-  $("#trBody").innerHTML=html;
-}
-
-/* ---------- TGI tab ---------- */
-function buildTgi(){
-  const t=D.tg||{};const pbp=t.program_by_point||{},routes=t.routes||{},detail=t.detail||{};
-  const daysP=Object.keys(pbp).sort(),daysR=Object.keys(routes).sort();
-  const daysD=[...new Set(Object.keys(detail).map(k=>k.split("|")[0]))].sort();
-  const allDays=[...new Set([...daysP,...daysR,...daysD])].sort().reverse();
-  $("#tgiDay").innerHTML=allDays.map(d=>`<option>${d}</option>`).join("")||"<option>—</option>";
-  const render=()=>{
-    const day=$("#tgiDay").value,view=$("#tgiView").value,q=$("#tgiFilter").value.toLowerCase();
-    const T=$("#tblTgi");let title,note="";
-    if(view==="points"){
-      title="TGI · Program by exit point";
-      const pts=pbp[day]||pbp[daysP.at(-1)]||{};
-      const ent=Object.entries(pts).filter(([k])=>k.toLowerCase().includes(q)).sort((a,b)=>b[1].total-a[1].total);
-      T.tHead.innerHTML="<tr><th>Exit point</th><th class='r'>Daily total</th><th class='r'>Peak h</th></tr>";
-      T.tBodies[0].innerHTML=ent.slice(0,80).map(([p,v])=>{
-        const pk=v.hours.indexOf(Math.max(...v.hours));
-        return `<tr><td>${p}</td><td class="r num">${fmt(v.total)}</td><td class="r num">${String(pk).padStart(2,"0")}:00</td></tr>`}).join("");
-      const top=ent.slice(0,8);
-      $("#tgiChartWrap").style.display="";
-      mkChart("#chTgi",{type:"line",data:{labels:[...Array(24).keys()].map(h=>h+":00"),
-        datasets:top.map(([p,v],i)=>({label:p,data:v.hours,borderColor:BLUES[i%5],borderWidth:2,pointRadius:0}))},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10}}}},
-          scales:{y:{title:{display:true,text:"per hour (native)"}}}}});
-      note=`Fact: hourly transport program per exit point (CGA report). Units are the report's native units — confirm KPC vs MBTU in Settings.`;
-    }else if(view==="routes"){
-      title="TGI · Route nominations";
-      const rs=(routes[day]||routes[daysR.at(-1)]||[]).filter(r=>JSON.stringify(r).toLowerCase().includes(q));
-      T.tHead.innerHTML="<tr><th>Contract</th><th>Remitente</th><th>Entry → Exit</th><th>Sector</th><th class='r'>MBTU</th><th class='r'>KPC</th><th>Desv.</th></tr>";
-      T.tBodies[0].innerHTML=rs.slice(0,200).map(r=>`<tr><td class="mono">${r.contract}</td><td>${r.remitente}</td>
-        <td>${r.entry} → ${r.exit}</td><td>${r.sector}</td><td class="r num">${fmt(r.mbtu)}</td>
-        <td class="r num">${fmt(r.kpc)}</td><td>${r.desvio}</td></tr>`).join("");
-      $("#tgiChartWrap").style.display="none";
-      note=`${rs.length} nomination records on ${day}. Filter by remitente, point or sector.`;
-    }else{
-      title="TGI · Client detail — Nomination vs Confirmed";
-      const keys=Object.keys(detail).filter(k=>k.startsWith(day)&&k.toLowerCase().includes(q));
-      T.tHead.innerHTML="<tr><th>Remitente</th><th>Point</th><th>Segment</th><th class='r'>Nominated</th><th class='r'>Confirmed</th><th class='r'>Δ</th></tr>";
-      T.tBodies[0].innerHTML=keys.slice(0,200).map(k=>{
-        const [,rem,pnt,seg]=k.split("|");const v=detail[k];
-        const n=v.nomination?.total||0,c=v.confirmed?.total||0,d=c-n;
-        return `<tr><td>${rem}</td><td>${pnt}</td><td>${seg}</td><td class="r num">${fmt(n)}</td>
-          <td class="r num">${fmt(c)}</td><td class="r num ${d<0?'neg':d>0?'pos':''}">${fmt(d)}</td></tr>`}).join("");
-      $("#tgiChartWrap").style.display="none";
-      note=`Δ = confirmed − nominated per client/point (cut-flag view).`;
-    }
-    $("#tgiTitle").textContent=title;$("#tgiNote").textContent=note;
-  };
-  ["tgiDay","tgiView","tgiFilter"].forEach(id=>$("#"+id).addEventListener("input",render));
-  if(allDays.length)render();
-}
-
-/* ---------- Thermal tab ---------- */
-function buildThermal(){
-  const xt=D.xt||{},xs=D.xs||{};
-  const days=Object.keys(xt).sort(),xl=days.at(-1);
-  const pending=!days.length;
-  $("#thChip").textContent=pending?"pending first XM sync":"last "+xl;
-  $("#thChip").className="chip "+(pending?"warn":"ok");
-  const burn=xl?Object.values(xt[xl]).reduce((s,p)=>s+p.mbtu,0):null;
-  const kp=[["Gas burn (latest)",burn?fmt(burn/1000,0):"—","GBTUD",xl||"run Actions once"],
-    ["Plants reporting",xl?Object.keys(xt[xl]).length:"—","",""],
-    ["Reservoir (XM outlook)",(D.xm?.thermal_outlook?.reservoir_pct_range||[]).join("–")||"—","%","wk 29-30 deck"],
-    ["Maint. unavailability",fmt(D.xm?.thermal_outlook?.maintenance_unavailability_mw_max),"MW max","wk 29-30 deck"]];
-  $("#thKpis").innerHTML=kp.map(([l,v,u,c])=>`<div class="card kpi"><div class="lbl">${l}</div><div class="val num">${v}<span class="un">${u}</span></div><div class="ctx">${c}</div></div>`).join("");
-
-  if(!pending){
-    const w=days.slice(-60);
-    mkChart("#chTh",{data:{labels:w.map(d=>d.slice(5)),datasets:[
-      {type:"bar",label:"Gas burn (GBTUD)",data:w.map(d=>Object.values(xt[d]).reduce((s,p)=>s+p.mbtu,0)/1000),
-        backgroundColor:"rgba(163,89,159,.55)",yAxisID:"y"},
-      {type:"line",label:"SIN demand (GWh-day)",data:w.map(d=>xs[d]?.demand_gwh??null),
-        borderColor:BLUE,borderWidth:2,pointRadius:0,yAxisID:"y1"}]},
-      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
-        plugins:{legend:{position:"bottom"}},
-        scales:{y:{title:{display:true,text:"GBTUD"}},y1:{position:"right",grid:{drawOnChartArea:false},title:{display:true,text:"GWh-day"}}}}});
-    const hr=D.xh?.plants||{};
-    $("#tblTh tbody").innerHTML=Object.entries(xt[xl]).sort((a,b)=>b[1].mbtu-a[1].mbtu).map(([p,v])=>
-      `<tr><td>${p}</td><td class="r num">${fmt(v.gwh,2)}</td><td class="r num">${fmt(v.mbtu)}</td>
-       <td class="r num">${fmt(v.hr,2)}</td><td class="r num">${fmt(hr[p],2)}</td></tr>`).join("");
+/* ---- Exhibit 1: balance ---- */
+function renderEx1(){
+  var M=MODEL,p=state.period,s='';
+  if(periodIsDaily(p)){
+    var n=+p,end=M.xLatest>M.gLast?M.xLatest:M.gLast,start=addDays(end,-(n-1));
+    var days=[];for(var d=start;d<=end;d=addDays(d,1))days.push(d);
+    var sup=days.map(function(d){return M.byDay[d]?M.byDay[d].total/1000:null;}),burn=days.map(function(d){return xmBurn(d)!=null?xmBurn(d)/1000:null;});
+    var maxV=niceMax(Math.max.apply(null,sup.concat(burn).filter(function(x){return x!=null;})));
+    var W=720,H=280,pad={l:52,r:14,t:18,b:32},iw=W-pad.l-pad.r,ih=H-pad.t-pad.b,gap=iw/days.length,bw=Math.max(gap*0.62,1.2);
+    function Y(v){return pad.t+ih-(v/maxV)*ih;}
+    s=svgOpen(W,H)+text(pad.l-44,pad.t-4,'GBTUD','axlab','start');
+    [0.25,0.5,0.75,1].forEach(function(f){s+=line(pad.l,Y(maxV*f),W-pad.r,Y(maxV*f),'#EDEFF4',1)+text(pad.l-6,Y(maxV*f)+3,fm0(maxV*f),'axis','end');});
+    days.forEach(function(d,i){var x=pad.l+gap*i+(gap-bw)/2;if(sup[i]!=null)s+=rect(x,Y(sup[i]),bw,ih-(Y(sup[i])-pad.t),'#294A9A',1);});
+    var pts=[];burn.forEach(function(v,i){if(v!=null&&!isPrelim(days[i]))pts.push([pad.l+gap*i+gap/2,Y(v)]);});
+    s+='<path d="'+pathOf(pts)+'" fill="none" stroke="#A3599F" stroke-width="2"/>';
+    var lastPre=null;days.forEach(function(d,i){if(burn[i]!=null&&isPrelim(d)){var x=pad.l+gap*i+gap/2;s+='<circle cx="'+x+'" cy="'+Y(burn[i])+'" r="2.5" fill="#fff" stroke="#A3599F" stroke-width="1.5"/>';lastPre=d;}});
+    var step=Math.ceil(days.length/9);days.forEach(function(d,i){if(i%step===0)s+=text(pad.l+gap*i+gap/2,H-pad.b+16,dLab(d),'axis');});
+    s+=text(W-pad.r,pad.t+4,'▮ supply (Gestor)   — thermal burn (XM)   ○ preliminary','axis','end')+'</svg>';
+    var lastBoth=days.filter(function(d,i){return sup[i]!=null&&burn[i]!=null&&!isPrelim(d);}).pop();
+    var lb=lastBoth?M.byDay[lastBoth].total/1000-xmBurn(lastBoth)/1000:null;
+    $("ex1t").textContent=lastBoth?('Thermal plants absorbed '+pct(xmBurn(lastBoth)/M.byDay[lastBoth].total)+' of supplied gas on '+dLab(lastBoth)+', leaving '+fm0(lb)+' GBTUD of headroom'):'No overlapping mature day in this window';
+    $("ex1s").textContent='Last '+n+' days ending '+dLab(end)+'. Bars: total daily supply (Gestor). Line: gas burned by thermal plants (XM). Gaps in bars mean the supply file has not been uploaded for those days.';
+    $("ex1n").innerHTML=M.gLast<end?'<b>Note.</b> Supply bars stop at '+dLab(M.gLast)+' — the Gestor export is the only manual feed in this exhibit.':'';
   }else{
-    $("#tblTh tbody").innerHTML=`<tr><td colspan="5"><div class="empty"><b>Run the “Update market data” Action once</b> (or wait for the next cron) to populate generation, fuel burn and derived heat rates from API XM. Then run “Backfill XM history” for data since 2020.</div></td></tr>`;
+    var mx=monthlyXM(),gp=D.gm&&D.gm.procesos||{};var mAll={};Object.keys(mx).forEach(function(m){mAll[m]=1;});Object.keys(gp).forEach(function(k){Object.keys(gp[k]).forEach(function(m){mAll[m]=1;});});
+    var ms=monthsInPeriod(p,Object.keys(mAll));
+    var supM=ms.map(function(m){var t=0,any=false;Object.keys(gp).forEach(function(k){if(gp[k][m]!=null){t+=gp[k][m];any=true;}});return any?t/1000:null;});
+    var burnM=ms.map(function(m){return mx[m]&&mx[m].burn!=null?mx[m].burn/1000:null;});
+    var maxV2=niceMax(Math.max.apply(null,supM.concat(burnM).filter(function(x){return x!=null;})));
+    var W2=720,H2=280,pad2={l:52,r:14,t:18,b:32},iw2=W2-pad2.l-pad2.r,ih2=H2-pad2.t-pad2.b,gap2=iw2/ms.length,bw2=Math.max(gap2*0.62,1.2);
+    function Y2(v){return pad2.t+ih2-(v/maxV2)*ih2;}
+    s=svgOpen(W2,H2)+text(pad2.l-44,pad2.t-4,'GBTUD (monthly avg)','axlab','start');
+    [0.25,0.5,0.75,1].forEach(function(f){s+=line(pad2.l,Y2(maxV2*f),W2-pad2.r,Y2(maxV2*f),'#EDEFF4',1)+text(pad2.l-6,Y2(maxV2*f)+3,fm0(maxV2*f),'axis','end');});
+    ms.forEach(function(m,i){var x=pad2.l+gap2*i+(gap2-bw2)/2;if(supM[i]!=null)s+=rect(x,Y2(supM[i]),bw2,ih2-(Y2(supM[i])-pad2.t),'#294A9A',1);});
+    var pts2=[];burnM.forEach(function(v,i){if(v!=null)pts2.push([pad2.l+gap2*i+gap2/2,Y2(v)]);});
+    s+='<path d="'+pathOf(pts2)+'" fill="none" stroke="#A3599F" stroke-width="2"/>';
+    var st2=Math.ceil(ms.length/10);ms.forEach(function(m,i){if(i%st2===0)s+=text(pad2.l+gap2*i+gap2/2,H2-pad2.b+16,mLab(m),'axis');});
+    s+=text(W2-pad2.r,pad2.t+4,'▮ supply (Gestor, from Mar-22)   — thermal burn (XM)','axis','end')+'</svg>';
+    var bAvg=burnM.filter(function(x){return x!=null;});var bmean=bAvg.length?bAvg.reduce(function(a,b){return a+b;},0)/bAvg.length:null;
+    var bmax=bAvg.length?Math.max.apply(null,bAvg):null;var imax=burnM.indexOf(bmax);
+    $("ex1t").textContent=bmean!=null?('Thermal gas burn averaged '+fm0(bmean)+' GBTUD over '+(p==='All'?'2020–'+TODAY.slice(0,4):p)+', peaking at '+fm0(bmax)+' GBTUD in '+mLab(ms[imax])):'No XM data in this period';
+    $("ex1s").textContent='Monthly averages. Supply (Gestor) is available from March 2022; XM thermal burn from January 2020.';
+    $("ex1n").innerHTML='';
   }
-  const m=D.xm;
-  $("#maintBody").innerHTML=m?`<p><b>${m.source}</b></p>
-    <p style="margin-top:6px">Gas sector (${m.gas_sector.week}): ${m.gas_sector.note}.</p>
-    <p style="margin-top:6px">Thermal outlook wk-30: <span class="num">${m.thermal_outlook.week30_avg_thermal_gwh_day.join("–")} GWh-day</span> ·
-    renewables share <span class="num">${m.thermal_outlook.renewables_share_pct}%</span> ·
-    reservoir <span class="num">${m.thermal_outlook.reservoir_pct_range.join("–")}%</span>.</p>
-    <p class="note" style="margin-top:6px">Weekly deck PDF: drop the new one in inbox/ — it is archived automatically; summary fields updated on parse (v2: automated extraction).</p>`
-    :"No maintenance deck loaded yet.";
+  $("ex1c").innerHTML=s;
 }
 
-/* ---------- Status tab ---------- */
-function buildStatus(){
-  const today=new Date(),ageDays=d=>d?Math.round((today-new Date(d))/864e5):null;
-  const rows=[
-    ["Gestor bi-gas (supply per field)","Daily, ~1 wk lag",D.gme?.last_date,7],
-    ["DPNG declared potential","Monthly / on novelty","2026-07-07 (Res. 01205)",45],
-    ["TGI CGA nominations","Daily (manual/auto)",Object.keys(D.tg?.program_by_point||{}).sort().at(-1),3],
-    ["Promigas / Promioriente","Daily D+1",Object.keys(D.tr?.sources?.PROMIGAS||{}).sort().at(-1),2],
-    ["XM thermal & demand","Daily (API)",Object.keys(D.xt||{}).sort().at(-1),2],
-    ["XM weekly CP deck","Weekly",D.xm?.updated_utc?.slice(0,10),9]];
-  $("#tblStatus tbody").innerHTML=rows.map(([s,c,d,tol])=>{
-    const a=ageDays(d);
-    const st=d==null?["bad","missing"]:a<=tol?["ok","fresh"]:a<=tol*2?["warn",a+"d old"]:["bad",a+"d old"];
-    return `<tr><td>${s}</td><td>${c}</td><td class="num">${d||"—"}</td><td><span class="chip ${st[0]}">${st[1]}</span></td></tr>`}).join("");
-  $("#collLog").innerHTML=(D.tr?.meta?.log||["No collector run yet — logs appear after the first GitHub Action."]).map(l=>"• "+l).join("<br>")+
-    "<br><br>updated: "+(D.tr?.meta?.updated_utc||"—")+" · XM meta: "+(D.xmeta?.updated_utc||"—");
+/* ---- Exhibit 2: supply by process ---- */
+function renderEx2(){
+  var M=MODEL,p=state.period,labels,series,ppLine,unitLab,xl;
+  if(periodIsDaily(p)){
+    var n=Math.min(+p,180),end=M.gLast,start=addDays(end,-(n-1));labels=[];for(var d=start;d<=end;d=addDays(d,1))labels.push(d);
+    var procs={};labels.forEach(function(d){var o=M.byDay[d];if(o)Object.keys(o.byProc).forEach(function(k){procs[k]=1;});});
+    series=Object.keys(procs).map(function(k){return {name:k,vals:labels.map(function(d){return M.byDay[d]?(M.byDay[d].byProc[k]||0)/1000:0;})};});
+    ppLine=labels.map(function(d){var v=ppMonth(d.slice(0,7));return v?v/1000:null;});unitLab='GBTUD';xl=function(d){return dLab(d);};
+  }else{
+    var gp=D.gm&&D.gm.procesos||{};var mAll={};Object.keys(gp).forEach(function(k){Object.keys(gp[k]).forEach(function(m){mAll[m]=1;});});
+    labels=monthsInPeriod(p,Object.keys(mAll));
+    series=Object.keys(gp).map(function(k){return {name:k,vals:labels.map(function(m){return (gp[k][m]||0)/1000;})};});
+    ppLine=labels.map(function(m){var v=ppMonth(m);return v?v/1000:null;});unitLab='GBTUD (monthly avg)';xl=function(m){return mLab(m);};
+  }
+  series.sort(function(a,b){return b.vals.reduce(function(x,y){return x+y;},0)-a.vals.reduce(function(x,y){return x+y;},0);});
+  var totals=labels.map(function(_,i){return series.reduce(function(a,sr){return a+sr.vals[i];},0);});
+  var maxV=niceMax(Math.max.apply(null,totals.concat(ppLine.filter(function(x){return x!=null;}))));
+  var W=720,H=300,pad={l:52,r:14,t:18,b:70},iw=W-pad.l-pad.r,ih=H-pad.t-pad.b,gap=iw/Math.max(labels.length,1),bw=Math.max(gap*0.66,1.2);
+  function Y(v){return pad.t+ih-(v/maxV)*ih;}
+  var s=svgOpen(W,H)+text(pad.l-44,pad.t-4,unitLab,'axlab','start');
+  [0.25,0.5,0.75,1].forEach(function(f){s+=line(pad.l,Y(maxV*f),W-pad.r,Y(maxV*f),'#EDEFF4',1)+text(pad.l-6,Y(maxV*f)+3,fm0(maxV*f),'axis','end');});
+  labels.forEach(function(_,i){var x=pad.l+gap*i+(gap-bw)/2,cum=0;series.forEach(function(sr,j){var v=sr.vals[i];if(v>0){s+=rect(x,Y(cum+v),bw,Y(cum)-Y(cum+v),PROC_COL[j%PROC_COL.length],0);cum+=v;}});});
+  var pts=[];ppLine.forEach(function(v,i){if(v!=null)pts.push([pad.l+gap*i+gap/2,Y(v)]);});
+  if(pts.length)s+='<path d="'+pathOf(pts)+'" fill="none" stroke="#A3599F" stroke-width="2" stroke-dasharray="6,4"/>';
+  var st=Math.ceil(labels.length/9);labels.forEach(function(l,i){if(i%st===0)s+=text(pad.l+gap*i+gap/2,H-pad.b+16,xl(l),'axis');});
+  series.forEach(function(sr,j){var lx=pad.l+(j%3)*230,ly=H-pad.b+34+Math.floor(j/3)*14;s+=rect(lx,ly-8,10,10,PROC_COL[j%PROC_COL.length],1)+text(lx+14,ly,sr.name,'axis','start');});
+  s+=line(pad.l+2*230,H-pad.b+34+Math.floor(series.length/3)*14-3,pad.l+2*230+22,H-pad.b+34+Math.floor(series.length/3)*14-3,'#A3599F',2,'6,4')+text(pad.l+2*230+26,H-pad.b+34+Math.floor(series.length/3)*14,'declared PP (DPNG, national)','axis','start')+'</svg>';
+  $("ex2c").innerHTML=s;
+  var iLast=totals.length-1;var lastTot=totals[iLast],lead=series[0];
+  $("ex2t").textContent=labels.length?(lead.name+' carries '+pct(lead.vals[iLast]/lastTot)+' of the '+fm0(lastTot)+' GBTUD supplied on '+xl(labels[iLast])):'No supply data in this period';
+  $("ex2n").innerHTML='<b>Reading.</b> The dashed line is the declared potential for national fields only; imported gas (Cartagena regas) sits inside the stacked bars, so the bars can exceed the line without any field over-producing.';
 }
 
-function build(){buildBalance();buildFields();buildTransp();buildTgi();buildThermal();buildStatus();}
+/* ---- Exhibit 3: fields ---- */
+function renderEx3(){
+  var M=MODEL;if(!M.gLast){$("ex3t").textContent='No field data';return;}
+  var last=M.gLast,o=M.byDay[last],prev=M.gDays.slice(-8,-1);
+  var rows=Object.keys(o.byField).map(function(f){var v=o.byField[f];var avg=prev.length?prev.reduce(function(a,d){return a+(M.byDay[d].byField[f]||0);},0)/prev.length:null;
+    var fd=D.dp&&D.dp.fields&&D.dp.fields[f];var pp=fd&&((fd.monthly&&fd.monthly[last.slice(0,7)]&&fd.monthly[last.slice(0,7)].pp)||(fd.annual_pp&&fd.annual_pp[last.slice(0,4)]))||null;
+    return {f:f,v:v,avg:avg,pp:pp,util:pp?v/pp:null,reg:D.fm&&D.fm[f]&&D.fm[f].region||''};}).sort(function(a,b){return b.v-a.v;});
+  var top=rows.slice(0,15),tot=o.total,maxV=top[0].v;
+  var under=rows.filter(function(r){return r.util!=null&&r.util<0.7&&r.pp>5000;}).length;
+  $("ex3t").textContent=top[0].f+' delivered '+pct(top[0].v/tot)+' of total supply on '+dLab(last)+(under?'; '+under+' fields with PP above 5 GBTUD ran below 70% of their declared potential':'');
+  $("ex3s").textContent='Top 15 fields by energy delivered (MBTUD). Real/PP compares the day against the declared potential for the month; tap a row to open its history below.';
+  var h='<table><thead><tr><th>Field</th><th>Region</th><th>Latest MBTUD</th><th>7-d avg</th><th>PP declared</th><th>Real / PP</th><th>Share</th></tr></thead><tbody>';
+  top.forEach(function(r){var w=Math.round(r.v/maxV*70);h+='<tr class="pick'+(state.field===r.f?' sel':'')+'" data-f="'+esc(r.f)+'"><td>'+esc(r.f)+'</td><td style="text-align:left;color:var(--mut)">'+esc(r.reg)+'</td><td class="num">'+fm0(r.v)+'</td><td class="num">'+fm0(r.avg)+'</td><td class="num">'+fm0(r.pp)+'</td><td class="num" style="color:'+(r.util==null?'inherit':r.util<0.7?'var(--neg)':r.util>1.1?'var(--amber)':'inherit')+'">'+pct(r.util)+'</td><td class="num"><span class="sharebar" style="width:'+w+'px"></span>'+pct(r.v/tot)+'</td></tr>';});
+  var rest=rows.slice(15);var rv=rest.reduce(function(a,r){return a+r.v;},0);
+  h+='<tr><td style="color:var(--mut)">Others ('+rest.length+')</td><td></td><td class="num">'+fm0(rv)+'</td><td></td><td></td><td></td><td class="num">'+pct(rv/tot)+'</td></tr>';
+  h+='<tr class="total"><td>Total</td><td></td><td class="num">'+fm0(tot)+'</td><td></td><td class="num">'+fm0(ppMonth(last.slice(0,7)))+'</td><td class="num">'+pct(ppMonth(last.slice(0,7))?o.nat/ppMonth(last.slice(0,7)):null)+'</td><td class="num">100.0%</td></tr></tbody></table>';
+  $("ex3c").innerHTML=h;
+  Array.prototype.forEach.call(document.querySelectorAll('#ex3c tr.pick'),function(tr){tr.onclick=function(){state.field=tr.getAttribute('data-f');renderEx3();};});
+  var fields=rows.map(function(r){return r.f;});if(!state.field||fields.indexOf(state.field)<0)state.field=fields[0];
+  var sel=$("fSel");sel.innerHTML=fields.map(function(f){return '<option'+(f===state.field?' selected':'')+'>'+esc(f)+'</option>';}).join('');sel.onchange=function(){state.field=sel.value;renderEx3();};
+  var f=state.field,meta=D.fm&&D.fm[f];$("fInfo").innerHTML=meta?('<b>'+esc(meta.region||'')+'</b> · '+esc(meta.producers.join(', ')))+' · PC '+(D.dp&&D.dp.fields[f]&&D.dp.fields[f].pc_btu_pc?fm0(D.dp.fields[f].pc_btu_pc)+' BTU/PC':'—'):'';
+  /* detail: daily 180 d + monthly since 2022 */
+  var days=M.gDays;var dv=days.map(function(d){return M.byDay[d].byField[f]||0;});var ppd=days.map(function(d){var fd=D.dp&&D.dp.fields[f];var x=fd&&fd.monthly&&fd.monthly[d.slice(0,7)];return x?x.pp:null;});
+  var mo=D.gm&&D.gm.fields&&D.gm.fields[f]||{};var ms=Object.keys(mo).sort();
+  var W=720,H=300,pad={l:52,r:14,t:18,b:30},h1=130,h2=90,gapY=40,iw=W-pad.l-pad.r;
+  var max1=niceMax(Math.max.apply(null,dv.concat(ppd.filter(function(x){return x!=null;})))),max2=niceMax(Math.max.apply(null,ms.map(function(m){return mo[m];})));
+  var s=svgOpen(W,H)+text(pad.l-44,pad.t-4,'MBTUD · last '+days.length+' d','axlab','start');
+  function Y1(v){return pad.t+h1-(v/max1)*h1;}
+  [0.5,1].forEach(function(q){s+=line(pad.l,Y1(max1*q),W-pad.r,Y1(max1*q),'#EDEFF4',1)+text(pad.l-6,Y1(max1*q)+3,fm0(max1*q),'axis','end');});
+  var gx=iw/Math.max(days.length-1,1);var pts=dv.map(function(v,i){return [pad.l+gx*i,Y1(v)];});
+  s+='<path d="'+pathOf(pts)+' L'+(pad.l+gx*(days.length-1)).toFixed(1)+' '+Y1(0)+' L'+pad.l+' '+Y1(0)+' Z" fill="#294A9A" opacity="0.12"/><path d="'+pathOf(pts)+'" fill="none" stroke="#294A9A" stroke-width="1.8"/>';
+  var pp2=[];ppd.forEach(function(v,i){if(v!=null)pp2.push([pad.l+gx*i,Y1(v)]);});if(pp2.length)s+='<path d="'+pathOf(pp2)+'" fill="none" stroke="#A3599F" stroke-width="2" stroke-dasharray="6,4"/>';
+  var st=Math.ceil(days.length/8);days.forEach(function(d,i){if(i%st===0)s+=text(pad.l+gx*i,pad.t+h1+14,dLab(d),'axis');});
+  var top2=pad.t+h1+gapY;s+=text(pad.l-44,top2-4,'MBTUD · monthly avg since '+(ms[0]?mLab(ms[0]):''),'axlab','start');
+  function Y2(v){return top2+h2-(v/max2)*h2;}
+  var gm=iw/Math.max(ms.length,1),bwm=Math.max(gm*0.6,1);ms.forEach(function(m,i){s+=rect(pad.l+gm*i+(gm-bwm)/2,Y2(mo[m]),bwm,h2-(Y2(mo[m])-top2),'#7FA0EE',1);});
+  var stm=Math.ceil(ms.length/10);ms.forEach(function(m,i){if(i%stm===0)s+=text(pad.l+gm*i+gm/2,top2+h2+14,mLab(m),'axis');});
+  s+='</svg>';$("ex3d").innerHTML=s;
+  var lastV=dv[dv.length-1],lastPP=ppd[ppd.length-1];
+  $("ex3n").innerHTML='<b>'+esc(f)+'.</b> '+fm0(lastV)+' MBTUD on '+dLab(last)+(lastPP?' vs '+fm0(lastPP)+' MBTUD declared ('+pct(lastV/lastPP)+')':'')+(ms.length?' · monthly peak '+fm0(Math.max.apply(null,ms.map(function(m){return mo[m];})))+' MBTUD':'')+'.';
+}
 
-/* tabs */
-$("#tabs").addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;
-  $$("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
-  $$(".tab").forEach(t=>t.classList.toggle("on",t.id==="tab-"+b.dataset.t));
-});
+/* ---- Exhibit 4: thermal by plant ---- */
+function renderEx4(){
+  var M=MODEL,d=M.xLast;if(!d||!D.xt||!D.xt[d]){$("ex4t").textContent='XM thermal data pending';$("ex4c").innerHTML='<div class="empty">No mature thermal day available yet.</div>';return;}
+  var pl=Object.keys(D.xt[d]).map(function(p){var v=D.xt[d][p];return {p:p,gwh:v.gwh,mbtu:v.mbtu,hr:v.hr,fuel:v.fuel||'',hr30:D.xh&&D.xh.plants&&D.xh.plants[p]};}).sort(function(a,b){return b.mbtu-a.mbtu;});
+  var tot=pl.reduce(function(a,x){return a+x.mbtu;},0),top=pl.slice(0,12),maxV=top[0].mbtu;
+  var W=720,rowH=26,pad={l:150,r:140,t:8},H=pad.t+top.length*rowH+8;var s=svgOpen(W,H);
+  top.forEach(function(x,i){var y=pad.t+i*rowH,w=(W-pad.l-pad.r)*(x.mbtu/maxV);s+=text(pad.l-8,y+rowH/2+3,x.p,'blab','end')+rect(pad.l,y+6,w,rowH-12,i===0?'url(#g1)':'#294A9A',2)+text(pad.l+w+6,y+rowH/2+3,fm0(x.mbtu/1000)+' GBTUD · HR '+fm1(x.hr),'axis','start');});
+  s+='</svg>';$("ex4c").innerHTML=s;
+  $("ex4t").textContent=top[0].p+' burned '+pct(top[0].mbtu/tot)+' of the '+fm0(tot/1000)+' GBTUD consumed by gas plants on '+dLab(d)+'; the top three plants account for '+pct(top.slice(0,3).reduce(function(a,x){return a+x.mbtu;},0)/tot);
+  $("ex4s").textContent='Gas burned per plant (XM ConsCombustibleMBTU, domestic + imported gas) with the implied heat rate for the day and the 30-day median.';
+  var h='<table><thead><tr><th>Plant</th><th>Fuel</th><th>GWh</th><th>MBTU</th><th>HR day</th><th>HR 30-d</th><th>Share</th></tr></thead><tbody>';
+  pl.forEach(function(x){var w=Math.round(x.mbtu/maxV*60);var off=x.hr&&x.hr30&&Math.abs(x.hr/x.hr30-1)>0.1;h+='<tr><td>'+esc(x.p)+'</td><td style="text-align:left;color:var(--mut)">'+esc(x.fuel)+'</td><td class="num">'+fm2(x.gwh)+'</td><td class="num">'+fm0(x.mbtu)+'</td><td class="num" style="color:'+(off?'var(--amber)':'inherit')+'">'+fm2(x.hr)+'</td><td class="num">'+fm2(x.hr30)+'</td><td class="num"><span class="sharebar" style="width:'+w+'px"></span>'+pct(x.mbtu/tot)+'</td></tr>';});
+  h+='<tr class="total"><td>Total</td><td></td><td class="num">'+fm2(pl.reduce(function(a,x){return a+x.gwh;},0))+'</td><td class="num">'+fm0(tot)+'</td><td class="num">'+fm2(tot/(pl.reduce(function(a,x){return a+x.gwh;},0)*1000))+'</td><td></td><td class="num">100.0%</td></tr></tbody></table>';
+  $("ex4tb").innerHTML=h;
+  $("ex4n").innerHTML='<b>Reading.</b> Amber heat rates deviate more than 10% from the plant\'s 30-day median — typically start-ups, part-load hours or dual-fuel days (GUAJIRA, TERMOYOPAL) where generation is not all gas-fired. Use the 30-day median for MW→MBTUD conversions.';
+}
+
+/* ---- Exhibit 5: demand vs burn ---- */
+function renderEx5(){
+  var p=state.period,labels,dem,burn,xl,unitNote;
+  if(periodIsDaily(p)){var n=+p,end=MODEL.xLatest,start=addDays(end,-(n-1));labels=[];for(var d=start;d<=end;d=addDays(d,1))labels.push(d);
+    dem=labels.map(function(d){return isPrelim(d)?null:xmDem(d);});burn=labels.map(function(d){return isPrelim(d)?null:(xmBurn(d)!=null?xmBurn(d)/1000:null);});xl=dLab;unitNote='daily, mature days only';}
+  else{var mx=monthlyXM();labels=monthsInPeriod(p,Object.keys(mx));dem=labels.map(function(m){return mx[m].dem;});burn=labels.map(function(m){return mx[m].burn!=null?mx[m].burn/1000:null;});xl=mLab;unitNote='monthly averages';}
+  var maxD=niceMax(Math.max.apply(null,dem.filter(function(x){return x!=null;}))),maxB=niceMax(Math.max.apply(null,burn.filter(function(x){return x!=null;})));
+  var W=720,H=280,pad={l:52,r:56,t:18,b:32},iw=W-pad.l-pad.r,ih=H-pad.t-pad.b,gx=iw/Math.max(labels.length-1,1);
+  function YD(v){return pad.t+ih-(v/maxD)*ih;}function YB(v){return pad.t+ih-(v/maxB)*ih;}
+  var s=svgOpen(W,H)+text(pad.l-44,pad.t-4,'GWh-day','axlab','start')+text(W-pad.r+6,pad.t-4,'GBTUD','axlab','start');
+  [0.25,0.5,0.75,1].forEach(function(f){s+=line(pad.l,YD(maxD*f),W-pad.r,YD(maxD*f),'#EDEFF4',1)+text(pad.l-6,YD(maxD*f)+3,fm0(maxD*f),'axis','end')+text(W-pad.r+6,YB(maxB*f)+3,fm0(maxB*f),'axis','start');});
+  var pd=[],pb=[];labels.forEach(function(_,i){if(dem[i]!=null)pd.push([pad.l+gx*i,YD(dem[i])]);if(burn[i]!=null)pb.push([pad.l+gx*i,YB(burn[i])]);});
+  s+='<path d="'+pathOf(pb)+' L'+(pb.length?pb[pb.length-1][0].toFixed(1):pad.l)+' '+YB(0)+' L'+(pb.length?pb[0][0].toFixed(1):pad.l)+' '+YB(0)+' Z" fill="#A3599F" opacity="0.10"/>';
+  s+='<path d="'+pathOf(pb)+'" fill="none" stroke="#A3599F" stroke-width="2"/><path d="'+pathOf(pd)+'" fill="none" stroke="#294A9A" stroke-width="2"/>';
+  var st=Math.ceil(labels.length/10);labels.forEach(function(l,i){if(i%st===0)s+=text(pad.l+gx*i,H-pad.b+16,xl(l),'axis');});
+  s+=text(W-pad.r,pad.t+4,'— SIN demand   — gas burn (shaded)','axis','end')+'</svg>';$("ex5c").innerHTML=s;
+  var bb=burn.filter(function(x){return x!=null;}),dd=dem.filter(function(x){return x!=null;});
+  var bmax=bb.length?Math.max.apply(null,bb):null,ib=burn.indexOf(bmax),bmin=bb.length?Math.min.apply(null,bb):null;
+  $("ex5t").textContent=bb.length?('Gas burn ranged from '+fm0(bmin)+' to '+fm0(bmax)+' GBTUD (peak '+xl(labels[ib])+') while demand averaged '+fm0(dd.reduce(function(a,b){return a+b;},0)/Math.max(dd.length,1))+' GWh-day'):'No XM data in this period';
+  $("ex5n").innerHTML='<b>Note.</b> '+unitNote+'. Thermal gas burn responds to hydrology and reservoir levels rather than to demand alone; the 2024 El Niño peak is the reference for a dry-season stress case.';
+}
+
+/* ---- Exhibit 6: TGI ---- */
+function renderEx6(){
+  var t=D.tg||{},pbp=t.program_by_point||{},routes=t.routes||{},detail=t.detail||{};
+  var days={};Object.keys(pbp).forEach(function(d){days[d]=1;});Object.keys(routes).forEach(function(d){days[d]=1;});Object.keys(detail).forEach(function(k){days[k.split('|')[0]]=1;});
+  var all=Object.keys(days).sort().reverse();var sel=$("tgiDay");
+  if(!sel.dataset.init){sel.innerHTML=all.map(function(d){return '<option>'+d+'</option>';}).join('');sel.dataset.init='1';[sel,$("tgiView"),$("tgiQ")].forEach(function(el){el.addEventListener('input',renderEx6);});}
+  if(!all.length){$("ex6t").textContent='No TGI files loaded';$("ex6c").innerHTML='<div class="empty">Drop a CGA export (program by point, nominations, or client detail) in the inbox.</div>';return;}
+  var day=sel.value||all[0],view=$("tgiView").value,q=$("tgiQ").value.toLowerCase();var s='',h='';
+  if(view==='points'){
+    var dd=pbp[day]?day:Object.keys(pbp).sort().pop();var pts=pbp[dd]||{};
+    var ent=Object.keys(pts).map(function(k){return [k,pts[k]];}).filter(function(e){return e[0].toLowerCase().indexOf(q)>=0;}).sort(function(a,b){return b[1].total-a[1].total;});
+    var tot=ent.reduce(function(a,e){return a+e[1].total;},0),top=ent.slice(0,10),maxV=top.length?top[0][1].total:1;
+    var W=720,rowH=24,pad={l:170,r:90,t:8},H=pad.t+top.length*rowH+8;s=svgOpen(W,H);
+    top.forEach(function(e,i){var y=pad.t+i*rowH,w=(W-pad.l-pad.r)*(e[1].total/maxV);s+=text(pad.l-8,y+rowH/2+3,e[0],'blab','end')+rect(pad.l,y+6,w,rowH-12,i===0?'url(#g1)':'#294A9A',2)+text(pad.l+w+6,y+rowH/2+3,fm0(e[1].total)+' ('+pct(e[1].total/tot)+')','axis','start');});
+    s+='</svg>';
+    $("ex6t").textContent=top.length?(top[0][0]+' takes '+pct(top[0][1].total/tot)+' of the TGI transport program on '+dd+' across '+ent.length+' exit points'):'No exit-point program for this day';
+    $("ex6s").textContent='Daily transport program per exit point (CGA report), native units. Peak hour shown in the table.';
+    h='<table><thead><tr><th>Exit point</th><th>Daily total</th><th>Peak hour</th><th>Share</th></tr></thead><tbody>'+ent.slice(0,60).map(function(e){var pk=e[1].hours.indexOf(Math.max.apply(null,e[1].hours));return '<tr><td>'+esc(e[0])+'</td><td class="num">'+fm0(e[1].total)+'</td><td class="num">'+String(pk).padStart(2,'0')+':00</td><td class="num">'+pct(e[1].total/tot)+'</td></tr>';}).join('')+'</tbody></table>';
+    $("ex6n").innerHTML='';
+  }else if(view==='detail'){
+    var keys=Object.keys(detail).filter(function(k){return k.indexOf(day)===0&&k.toLowerCase().indexOf(q)>=0;});
+    var rows=keys.map(function(k){var p=k.split('|'),v=detail[k];var nm=v.nomination?v.nomination.total:0,cf=v.confirmed?v.confirmed.total:0;return {rem:p[1],pnt:p[2],seg:p[3],nom:nm,con:cf,d:cf-nm};}).sort(function(a,b){return a.d-b.d;});
+    var cuts=rows.filter(function(r){return r.d<0;});var cutV=cuts.reduce(function(a,r){return a+r.d;},0);
+    $("ex6t").textContent=rows.length?(cuts.length+' of '+rows.length+' client/point positions were confirmed below nomination on '+day+' ('+fm0(cutV)+' in total)'):'No client detail for '+day;
+    $("ex6s").textContent='Δ = confirmed − nominated per remitente and delivery point; negative values are cuts. Sorted by largest cut.';
+    h='<table><thead><tr><th>Remitente</th><th>Point</th><th>Segment</th><th>Nominated</th><th>Confirmed</th><th>Δ</th></tr></thead><tbody>'+rows.slice(0,120).map(function(r){return '<tr><td>'+esc(r.rem)+'</td><td style="text-align:left">'+esc(r.pnt)+'</td><td style="text-align:left;color:var(--mut)">'+esc(r.seg)+'</td><td class="num">'+fm0(r.nom)+'</td><td class="num">'+fm0(r.con)+'</td><td class="num" style="color:'+(r.d<0?'var(--neg)':r.d>0?'var(--pos)':'inherit')+'">'+fm0(r.d)+'</td></tr>';}).join('')+'</tbody></table>';
+    $("ex6n").innerHTML='';
+  }else{
+    var rs=(routes[day]||[]).filter(function(r){return JSON.stringify(r).toLowerCase().indexOf(q)>=0;});
+    var mb=rs.reduce(function(a,r){return a+(r.mbtu||0);},0);
+    $("ex6t").textContent=rs.length?(rs.length+' route nominations on '+day+' totalling '+fm0(mb)+' MBTU'):'No route nominations for '+day;
+    $("ex6s").textContent='Nomination records by contract and entry→exit route (CGA), with energy and volume as nominated.';
+    h='<table><thead><tr><th>Contract</th><th>Remitente</th><th>Entry → Exit</th><th>Sector</th><th>MBTU</th><th>KPC</th><th>Desv.</th></tr></thead><tbody>'+rs.slice(0,150).map(function(r){return '<tr><td class="num">'+esc(r.contract)+'</td><td style="text-align:left">'+esc(r.remitente)+'</td><td style="text-align:left">'+esc(r.entry)+' → '+esc(r.exit)+'</td><td style="text-align:left;color:var(--mut)">'+esc(r.sector)+'</td><td class="num">'+fm0(r.mbtu)+'</td><td class="num">'+fm0(r.kpc)+'</td><td>'+esc(r.desvio)+'</td></tr>';}).join('')+'</tbody></table>';
+    $("ex6n").innerHTML='';
+  }
+  $("ex6c").innerHTML=s;$("ex6tb").innerHTML=h;
+}
+
+/* ---- Exhibit 7: transporters ---- */
+function renderEx7(){
+  var src=D.tr&&D.tr.sources||{};var names=Object.keys(src);
+  if(!names.length){$("ex7t").textContent='Transporter injections are in upload mode — no automated ingest yet';
+    $("ex7c").innerHTML='<div class="empty"><b>Upload mode.</b> Export the daily file from TGI CGA, Promigas BEO or Promioriente BEO and drop it in the inbox; the pipeline routes it here. Latest probe results are listed in Exhibit 8.</div>';return;}
+  var h='';names.forEach(function(n){var ds=Object.keys(src[n]).sort(),last=ds[ds.length-1],pts=src[n][last];var tot=Object.keys(pts).reduce(function(a,k){return a+pts[k];},0);
+    h+='<div class="fnote" style="margin-top:14px"><b>'+esc(n)+'</b> · '+last+' · total '+fm0(tot)+' (native)</div><table><thead><tr><th>Injection point</th><th>Value</th></tr></thead><tbody>'+Object.keys(pts).sort(function(a,b){return pts[b]-pts[a];}).map(function(k){return '<tr><td>'+esc(k)+'</td><td class="num">'+fm1(pts[k])+'</td></tr>';}).join('')+'</tbody></table>';});
+  $("ex7t").textContent=names.join(', ')+' ingested automatically';$("ex7c").innerHTML=h;
+}
+
+/* ---- Exhibit 8: hygiene ---- */
+function renderEx8(){
+  var M=MODEL;function age(d){return d?daysBetween(d,TODAY):null;}
+  var src=[
+    ['Gestor bi-gas — supply per field','Daily, ~1 week lag',D.gme&&D.gme.last_date,10,'upload'],
+    ['DPNG declared potential','Monthly / on novelty',D.dp&&D.dp.source,60,'upload'],
+    ['XM — demand, generation, fuel burn','Daily, 4× refresh',M.xLatest,3,'auto'],
+    ['TGI CGA — nominations & program','Daily',Object.keys(D.tg&&D.tg.program_by_point||{}).sort().pop(),3,'upload'],
+    ['Promigas / Promioriente BEO','Daily D+1',Object.keys(D.tr&&D.tr.sources&&D.tr.sources.PROMIGAS||{}).sort().pop(),2,'probe'],
+    ['XM weekly CP deck (maintenance)','Weekly',D.xm&&D.xm.updated_utc&&D.xm.updated_utc.slice(0,10),9,'upload']];
+  var h='<table><thead><tr><th>Source</th><th>Cadence</th><th>Mode</th><th>Last data</th><th>State</th></tr></thead><tbody>';
+  src.forEach(function(r){var d=r[2],isDate=/^\d{4}-\d{2}-\d{2}$/.test(d||'');var a=isDate?age(d):null;var st=!d?['h','missing']:!isDate?['ok','current']:a<=r[3]?['ok','fresh']:a<=r[3]*3?['m',a+' d old']:['h',a+' d old'];
+    h+='<tr><td>'+r[0]+'</td><td style="text-align:left;color:var(--mut)">'+r[1]+'</td><td style="text-align:left">'+r[4]+'</td><td class="num">'+esc(d||'—')+'</td><td><span class="sev '+st[0]+'">'+st[1]+'</span></td></tr>';});
+  h+='</tbody></table>';$("ex8f").innerHTML=h;
+  var flags=[];
+  var gAge=age(M.gLast);if(gAge>10)flags.push({s:'h',t:'Supply feed is '+gAge+' days stale',f:'Gestor export last covers '+M.gLast+'. Exhibits 1–3 and the headline balance are frozen at that date.',r:'Export bi-gas/oferta (Fecha, Tipo, Proceso, Campo, Energía) and drop it in the inbox; the pipeline refreshes everything in ~2 min.'});
+  var ch=D.xmeta&&D.xmeta.chunks;if(ch&&ch.chunks_fail)flags.push({s:'m',t:'XM connectivity: '+ch.chunks_fail+' of '+(ch.chunks_ok+ch.chunks_fail)+' requests failed on the last run',f:'XM intermittently rejects requests from GitHub runners; the collector retries with backoff and re-pulls a 35-day window each run.',r:'If failures persist across a day, switch the collector to the SIMEM host (drop-in alternative).'});
+  else if(ch)flags.push({s:'ok',t:'XM sync healthy',f:(ch.chunks_ok)+' of '+(ch.chunks_ok)+' requests succeeded on the last run ('+(D.xmeta.updated_utc||'')+').',r:'None.'});
+  if(M.xLatest&&isPrelim(M.xLatest))flags.push({s:'l',t:'Preliminary XM days in view',f:'Values after '+matureCut()+' are partial settlements from XM and will change.',r:'No action; they self-correct on the next refreshes.'});
+  var log=D.tr&&D.tr.meta&&D.tr.meta.log||[];log.forEach(function(l){var sev=/ingested/.test(l)?'ok':/FAILED|manual/.test(l)?'m':'l';flags.push({s:sev,t:l.split(':')[0]+' probe',f:l,r:sev==='ok'?'None.':'Automation pending (browser-driven fetch); upload the daily export meanwhile.'});});
+  if(D.dp)flags.push({s:'l',t:'Declared potential source',f:D.dp.source+'.',r:'Upload the next DPNG resolution to the inbox when MinEnergía publishes it; the overlay updates automatically.'});
+  $("ex8c").innerHTML=flags.map(function(fl){return '<div class="flag"><span class="sev '+fl.s+'">'+(fl.s==='h'?'High':fl.s==='m'?'Medium':fl.s==='ok'?'OK':'Low')+'</span><div><div class="ft">'+esc(fl.t)+'</div><div class="fb"><span class="tag">Fact</span>'+esc(fl.f)+'<br><span class="tag">Action</span>'+esc(fl.r)+'</div></div></div>';}).join('');
+}
+
+document.getElementById("btnReload").onclick=function(){D={};$("updmsg").textContent='Reloading…';loadAll().then(function(){$("updmsg").textContent='Reloaded '+new Date().toLocaleTimeString();});};
 loadAll();
 </script>
 </body>

@@ -1,14 +1,14 @@
 {
  "source": "API XM servapibi.xm.com.co (Gene/Recurso, ConsCombustibleMBTU/Recurso, DemaCome/Sistema)",
  "window": [
-  "2026-08-17",
-  "2026-09-21"
+  "2026-08-18",
+  "2026-09-22"
  ],
  "last_thermal_date": "2026-09-18",
  "last_demand_date": "2026-09-18",
  "chunks": {
-  "chunks_ok": 6,
-  "chunks_fail": 0
+  "chunks_ok": 0,
+  "chunks_fail": 6
  },
- "updated_utc": "2026-09-21T22:46Z"
+ "updated_utc": "2026-09-22T02:36Z"
 }

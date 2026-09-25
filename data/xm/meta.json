@@ -4,11 +4,11 @@
   "2026-08-21",
   "2026-09-25"
  ],
- "last_thermal_date": "2026-09-21",
- "last_demand_date": "2026-09-21",
+ "last_thermal_date": "2026-09-22",
+ "last_demand_date": "2026-09-22",
  "chunks": {
   "chunks_ok": 6,
   "chunks_fail": 0
  },
- "updated_utc": "2026-09-25T01:43Z"
+ "updated_utc": "2026-09-25T14:16Z"
 }

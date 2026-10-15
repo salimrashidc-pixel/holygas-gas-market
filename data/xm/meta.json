@@ -7,8 +7,8 @@
  "last_thermal_date": "2026-10-12",
  "last_demand_date": "2026-10-12",
  "chunks": {
-  "chunks_ok": 6,
-  "chunks_fail": 0
+  "chunks_ok": 0,
+  "chunks_fail": 6
  },
- "updated_utc": "2026-10-15T19:59Z"
+ "updated_utc": "2026-10-15T23:30Z"
 }

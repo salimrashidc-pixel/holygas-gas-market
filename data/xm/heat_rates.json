@@ -2,7 +2,7 @@
  "unit": "MBTU/MWh",
  "method": "median implied HR, trailing 30d, bounds 4-20",
  "plants": {
-  "BARRANQUILLA 3": 13.61,
+  "BARRANQUILLA 3": 13.69,
   "BARRANQUILLA 4": 14.17,
   "DRUMMOND": 9.75,
   "FLORES 4 CC": 8.28,
@@ -10,15 +10,15 @@
   "GUAJIRA 1": 4.12,
   "GUAJIRA 2": 5.2,
   "MERILECTRICA 1": 13.33,
-  "PROELECTRICA 1": 17.42,
+  "PROELECTRICA 1": 17.07,
   "TEBSAB CC": 8.26,
   "TERMOCANDELARIA CC": 7.49,
   "TERMOCENTRO CC": 12.72,
-  "TERMOVALLE CC": 9.0,
+  "TERMOVALLE CC": 6.32,
   "TERMOYOPAL 1": 17.1,
-  "TERMOYOPAL 2": 14.64,
+  "TERMOYOPAL 2": 14.62,
   "TERMOYOPAL G3": 10.21,
-  "TERMOYOPAL G4": 10.4,
-  "TESORITO": 8.6
+  "TERMOYOPAL G4": 10.39,
+  "TESORITO": 8.59
  }
 }

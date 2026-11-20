@@ -3,15 +3,15 @@
  "method": "median implied HR, trailing 30d, bounds 4-20",
  "plants": {
   "BARRANQUILLA 3": 14.23,
-  "BARRANQUILLA 4": 14.31,
+  "BARRANQUILLA 4": 14.16,
   "DRUMMOND": 9.77,
   "FLORES 4 CC": 7.82,
   "FLORES I CC": 8.37,
   "GUAJIRA 1": 9.86,
   "GUAJIRA 2": 13.62,
-  "MERILECTRICA 1": 13.32,
+  "MERILECTRICA 1": 13.31,
   "PROELECTRICA 1": 9.52,
-  "TEBSAB CC": 8.26,
+  "TEBSAB CC": 8.25,
   "TERMOCANDELARIA CC": 7.46,
   "TERMOCENTRO CC": 13.6,
   "TERMOVALLE CC": 8.12,
@@ -19,6 +19,6 @@
   "TERMOYOPAL 2": 14.7,
   "TERMOYOPAL G3": 10.18,
   "TERMOYOPAL G4": 10.32,
-  "TESORITO": 8.67
+  "TESORITO": 8.68
  }
 }
